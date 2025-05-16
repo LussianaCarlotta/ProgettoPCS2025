@@ -16,12 +16,13 @@ namespace PoliedriLibrary
 	// viene restituito il risultato della scrittura: true se ha avuto successo, false altrimenti
 	bool Cell0Ds(PoliedriMesh& mesh);
 
-/*	
+
 	// Importazione delle proprietà di Cell1Ds
 	// mesh: PoliedriMesh struct
 	// viene restituito il risultato della scrittura: true se ha avuto successo, false altrimenti
 	bool Cell1Ds(PoliedriMesh& mesh);
 	
+	/*
 	// Importazione delle proprietà di Cell2Ds
 	// mesh: PoliedriMesh struct
 	// viene restituito il risultato della scrittura: true se ha avuto successo, false altrimenti

@@ -23,9 +23,9 @@ void Export (PoliedriMesh& mesh){
 	utilities.ExportPoints("./Cell0Ds.inp", 
 							mesh.Cell0DsCoordinates, {} );
 	
-	/*utilities.ExportSegments("./Cell1Ds.inp", 
+	utilities.ExportSegments("./Cell1Ds.inp", 
 							mesh.Cell0DsCoordinates, 
 							mesh.Cell1DsExtrema, {}, {} );
-*/
+
 }
 }

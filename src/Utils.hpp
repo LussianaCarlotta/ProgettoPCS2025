@@ -4,7 +4,7 @@
 
 using namespace std;
 
-namespace PoliedriMesh
+namespace PoliedriLibrary 
 {
 	// Importazione della PoliedriMesh
 	// mesh: PoliedriMesh struct
@@ -15,7 +15,8 @@ namespace PoliedriMesh
 	// mesh: PoliedriMesh struct
 	// viene restituito il risultato della scrittura: true se ha avuto successo, false altrimenti
 	bool Cell0Ds(PoliedriMesh& mesh);
-	
+
+/*	
 	// Importazione delle proprietà di Cell1Ds
 	// mesh: PoliedriMesh struct
 	// viene restituito il risultato della scrittura: true se ha avuto successo, false altrimenti
@@ -30,4 +31,9 @@ namespace PoliedriMesh
 	// mesh: PoliedriMesh struct
 	// viene restituito il risultato della scrittura: true se ha avuto successo, false altrimenti
 	bool Cell3Ds(PoliedriMesh& mesh);
+	
+	
+*/
+
+	void Export(PoliedriMesh& mesh);
 }

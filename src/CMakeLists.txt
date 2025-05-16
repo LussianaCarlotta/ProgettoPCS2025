@@ -1,10 +1,10 @@
-list(APPEND poliedriMesh_headers ${CMAKE_CURRENT_SOURCE_DIR}/Utils.hpp)
-list(APPEND poliedriMesh_headers ${CMAKE_CURRENT_SOURCE_DIR}/PoliedriMesh.hpp)
+list(APPEND PoliedriMesh_headers ${CMAKE_CURRENT_SOURCE_DIR}/Utils.hpp)
+list(APPEND PoliedriMesh_headers ${CMAKE_CURRENT_SOURCE_DIR}/PoliedriMesh.hpp)
 
-list(APPEND poliedriMesh_sources ${CMAKE_CURRENT_SOURCE_DIR}/Utils.cpp)
+list(APPEND PoliedriMesh_sources ${CMAKE_CURRENT_SOURCE_DIR}/Utils.cpp)
 
-list(APPEND poliedriMesh_includes ${CMAKE_CURRENT_SOURCE_DIR})
+list(APPEND PoliedriMesh_includes ${CMAKE_CURRENT_SOURCE_DIR})
 
-set(poliedriMesh_sources ${poliedriMesh_sources} PARENT_SCOPE)
-set(poliedriMesh_headers ${poliedriMesh_headers} PARENT_SCOPE)
-set(poliedriMesh_includes ${poliedriMesh_includes} PARENT_SCOPE)
+set(PoliedriMesh_sources ${PoliedriMesh_sources} PARENT_SCOPE)
+set(PoliedriMesh_headers ${PoliedriMesh_headers} PARENT_SCOPE)
+set(PoliedriMesh_includes ${PoliedriMesh_includes} PARENT_SCOPE)

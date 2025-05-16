@@ -20,54 +20,54 @@ endif (WIN32)
 
 ## Eigen3
 find_package(Eigen3 CONFIG REQUIRED)
-list(APPEND ${PROJECT_NAME}_LINKED_LIBRARIES PUBLIC Eigen3::Eigen)
+list(APPEND ProgettoPCS2025_LINKED_LIBRARIES PUBLIC Eigen3::Eigen)
 
 ## Threads
 find_package(Threads REQUIRED)
-list(APPEND ${PROJECT_NAME}_LINKED_LIBRARIES PRIVATE Threads::Threads)
+list(APPEND ProgettoPCS2025_LINKED_LIBRARIES PRIVATE Threads::Threads)
 
 ## GTest
 find_package(GTest REQUIRED)
 
-list(APPEND ${PROJECT_NAME}_LINKED_LIBRARIES PRIVATE GTest::gtest)
-list(APPEND ${PROJECT_NAME}_LINKED_LIBRARIES PRIVATE GTest::gtest_main)
-list(APPEND ${PROJECT_NAME}_LINKED_LIBRARIES PRIVATE GTest::gmock)
-list(APPEND ${PROJECT_NAME}_LINKED_LIBRARIES PRIVATE GTest::gmock_main)
+list(APPEND ProgettoPCS2025_LINKED_LIBRARIES PRIVATE GTest::gtest)
+list(APPEND ProgettoPCS2025_LINKED_LIBRARIES PRIVATE GTest::gtest_main)
+list(APPEND ProgettoPCS2025_LINKED_LIBRARIES PRIVATE GTest::gmock)
+list(APPEND ProgettoPCS2025_LINKED_LIBRARIES PRIVATE GTest::gmock_main)
 
 ############################# Add subdirectory ###########################################
 add_subdirectory(src) #cerca il file CMakeLists contenuto nella cartella src
 add_subdirectory(ExportParaview)
 add_subdirectory(src_test)
 
-list(APPEND ${PROJECT_NAME}_sources ${src_sources} ${src_paraview_souces})
-list(APPEND ${PROJECT_NAME}_includes ${src_includes} ${src_paraview_includes})
-list(APPEND ${PROJECT_NAME}_headers ${src_headers} ${src_paraview_headers})
+list(APPEND ProgettoPCS2025_sources ${src_sources} ${src_paraview_souces})
+list(APPEND ProgettoPCS2025_includes ${src_includes} ${src_paraview_includes})
+list(APPEND ProgettoPCS2025_headers ${src_headers} ${src_paraview_headers})
 
-list(APPEND ${PROJECT_NAME}_TEST_sources ${${PROJECT_NAME}_sources} ${src_test_sources})
-list(APPEND ${PROJECT_NAME}_TEST_headers ${${PROJECT_NAME}_headers} ${src_test_headers})
-list(APPEND ${PROJECT_NAME}_TEST_includes ${${PROJECT_NAME}_includes} ${src_test_includes})
+list(APPEND ProgettoPCS2025_TEST_sources ${${PROJECT_NAME}_sources} ${src_test_sources})
+list(APPEND ProgettoPCS2025_TEST_headers ${${PROJECT_NAME}_headers} ${src_test_headers})
+list(APPEND ProgettoPCS2025_TEST_includes ${${PROJECT_NAME}_includes} ${src_test_includes})
 
 ############################# Copy file ##################################
 
-file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/ListPolygons DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/PoliedriMesh/Cell0Ds.txt DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/PoliedriMesh/Cell1Ds.txt ${CMAKE_CURRENT_SOURCE_DIR}/PoliedriMesh/Cell2Ds.txt ${CMAKE_CURRENT_SOURCE_DIR}/PoliedriMesh/Cell3Ds.txt)
 
 ########################### Add executable ##############################
 
 # Add two executables: ProgettoPCS2025 and ProgettoPCS2025_TEST
 
 add_executable(${PROJECT_NAME} main.cpp 
-			   ${${PROJECT_NAME}_sources}
-			   ${${PROJECT_NAME}_headers})
+			   ${ProgettoPCS2025_sources}
+			   ${ProgettoPCS2025_headers})
 target_include_directories(${PROJECT_NAME} PUBLIC
-						   ${${CMAKE_PROJECT_NAME}_includes})
-target_link_libraries(${PROJECT_NAME} PUBLIC ${${PROJECT_NAME}_LINKED_LIBRARIES})
+						   ${ProgettoPCS2025_includes})
+target_link_libraries(${PROJECT_NAME} PUBLIC ${ProgettoPCS2025_LINKED_LIBRARIES})
 target_compile_options(${PROJECT_NAME} PUBLIC -fPIC)
 
 add_executable(${PROJECT_NAME}_TEST main_test.cpp 
-			   ${${PROJECT_NAME}_TEST_sources}
-			   ${${PROJECT_NAME}_TEST_headers})
+			   ${ProgettoPCS2025_TEST_sources}
+			   ${ProgettoPCS2025_TEST_headers})
 				
 target_include_directories(${PROJECT_NAME}_TEST PUBLIC
-						   ${${CMAKE_PROJECT_NAME}_TEST_includes})
-target_link_libraries(${PROJECT_NAME}_TEST PUBLIC ${${PROJECT_NAME}_LINKED_LIBRARIES})
+						   ${ProgettoPCS2025_TEST_includes})
+target_link_libraries(${PROJECT_NAME}_TEST PUBLIC ${ProgettoPCS2025_LINKED_LIBRARIES})
 target_compile_options(${PROJECT_NAME}_TEST PUBLIC -fPIC)

@@ -16,13 +16,11 @@ namespace PoliedriLibrary
 	// viene restituito il risultato della scrittura: true se ha avuto successo, false altrimenti
 	bool Cell0Ds(PoliedriMesh& mesh);
 
-
 	// Importazione delle proprietà di Cell1Ds
 	// mesh: PoliedriMesh struct
 	// viene restituito il risultato della scrittura: true se ha avuto successo, false altrimenti
 	bool Cell1Ds(PoliedriMesh& mesh);
-	
-	/*
+
 	// Importazione delle proprietà di Cell2Ds
 	// mesh: PoliedriMesh struct
 	// viene restituito il risultato della scrittura: true se ha avuto successo, false altrimenti
@@ -32,9 +30,13 @@ namespace PoliedriLibrary
 	// mesh: PoliedriMesh struct
 	// viene restituito il risultato della scrittura: true se ha avuto successo, false altrimenti
 	bool Cell3Ds(PoliedriMesh& mesh);
-	
-	
-*/
+
 
 	void Export(PoliedriMesh& mesh);
+	
+	void AggiungiFacce(PoliedriMesh& mesh);
+	
+	// verifichiamo la (4) del pfd
+	bool VerificaFacceSemplice(const PoliedriLibrary::PoliedriMesh& mesh);
+
 }

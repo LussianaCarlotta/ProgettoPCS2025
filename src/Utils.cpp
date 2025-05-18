@@ -11,7 +11,7 @@ using namespace Eigen;
 
 namespace PoliedriLibrary {
 
-/// Celle0Ds
+
 void normalizza(double& x, double& y, double& z) {
     double norma = sqrt(x * x + y * y + z * z);
     x /= norma;
@@ -19,6 +19,7 @@ void normalizza(double& x, double& y, double& z) {
     z /= norma;
 }
 
+/// Celle0Ds
 void AggiungiVertici(PoliedriMesh& mesh, const vector<Vector3d>& vertici) {
 	unsigned int IdOffset = mesh.NumCell0Ds;
 	mesh.NumCell0Ds += vertici.size();
@@ -80,6 +81,7 @@ void creaPoliedriNormalizzati(PoliedriMesh& mesh) {
     };
     AggiungiVertici(mesh, verticiicosaedro);
 }
+
 
 void AggiungiLati(PoliedriMesh& mesh) {
     unsigned int idLato = 0;
@@ -158,6 +160,99 @@ void AggiungiLati(PoliedriMesh& mesh) {
     mesh.NumCell1Ds = idLato;
 }
 
+void AggiungiFacce(PoliedriMesh& mesh) {
+    using namespace std;
+
+    unsigned int idFaccia = 0;
+
+    // Mappa per cercare ID lato da 2 vertici
+    map<pair<unsigned int, unsigned int>, unsigned int> lato_da_vertici;
+    for (unsigned int i = 0; i < mesh.NumCell1Ds; ++i) {
+        unsigned int v1 = mesh.Cell1DsExtrema(0, i);
+        unsigned int v2 = mesh.Cell1DsExtrema(1, i);
+        lato_da_vertici[{v1, v2}] = i;
+        lato_da_vertici[{v2, v1}] = i;  // bidirezionale
+    }
+
+    auto aggiungiFaccia = [&](vector<unsigned int> vertici) {
+        mesh.Cell2DsId.push_back(idFaccia++);
+        mesh.Cell2DsVertices.push_back(vertici);
+
+        vector<unsigned int> lati;
+        for (size_t i = 0; i < vertici.size(); ++i) {
+            unsigned int a = vertici[i];
+            unsigned int b = vertici[(i + 1) % vertici.size()];
+            lati.push_back(lato_da_vertici[{a, b}]);
+        }
+
+        mesh.Cell2DsEdges.push_back(lati);
+    };
+
+    // === TETRAEDRO ===
+    unsigned int o_tetra = 0;
+    aggiungiFaccia({o_tetra+0, o_tetra+1, o_tetra+2});
+    aggiungiFaccia({o_tetra+0, o_tetra+1, o_tetra+3});
+    aggiungiFaccia({o_tetra+0, o_tetra+2, o_tetra+3});
+    aggiungiFaccia({o_tetra+1, o_tetra+2, o_tetra+3});
+
+    // === CUBO ===
+    unsigned int o_cubo = o_tetra + 4;
+    aggiungiFaccia({o_cubo+0, o_cubo+1, o_cubo+3, o_cubo+2});
+    aggiungiFaccia({o_cubo+4, o_cubo+5, o_cubo+7, o_cubo+6});
+    aggiungiFaccia({o_cubo+0, o_cubo+4, o_cubo+5, o_cubo+1});
+    aggiungiFaccia({o_cubo+1, o_cubo+5, o_cubo+7, o_cubo+3});
+    aggiungiFaccia({o_cubo+3, o_cubo+7, o_cubo+6, o_cubo+2});
+    aggiungiFaccia({o_cubo+2, o_cubo+6, o_cubo+4, o_cubo+0});
+
+    // === OTTAEDRO ===
+    unsigned int o_otta = o_cubo + 8;
+    aggiungiFaccia({o_otta+0, o_otta+2, o_otta+4});
+    aggiungiFaccia({o_otta+0, o_otta+4, o_otta+3});
+    aggiungiFaccia({o_otta+0, o_otta+3, o_otta+5});
+    aggiungiFaccia({o_otta+0, o_otta+5, o_otta+2});
+    aggiungiFaccia({o_otta+1, o_otta+2, o_otta+5});
+    aggiungiFaccia({o_otta+1, o_otta+5, o_otta+3});
+    aggiungiFaccia({o_otta+1, o_otta+3, o_otta+4});
+    aggiungiFaccia({o_otta+1, o_otta+4, o_otta+2});
+
+    // === DODECAEDRO ===
+    unsigned int o_dode = o_otta + 6;
+    aggiungiFaccia({o_dode+0, o_dode+1, o_dode+9, o_dode+16, o_dode+5});
+    aggiungiFaccia({o_dode+1, o_dode+8, o_dode+17, o_dode+9, o_dode+1});
+    aggiungiFaccia({o_dode+8, o_dode+10, o_dode+18, o_dode+17, o_dode+8});
+    aggiungiFaccia({o_dode+10, o_dode+3, o_dode+19, o_dode+18, o_dode+10});
+    aggiungiFaccia({o_dode+3, o_dode+2, o_dode+14, o_dode+19, o_dode+3});
+    aggiungiFaccia({o_dode+2, o_dode+11, o_dode+15, o_dode+14, o_dode+2});
+    aggiungiFaccia({o_dode+11, o_dode+6, o_dode+12, o_dode+15, o_dode+11});
+    aggiungiFaccia({o_dode+6, o_dode+7, o_dode+13, o_dode+12, o_dode+6});
+    aggiungiFaccia({o_dode+7, o_dode+4, o_dode+16, o_dode+13, o_dode+7});
+    aggiungiFaccia({o_dode+4, o_dode+5, o_dode+0, o_dode+16, o_dode+4});
+    aggiungiFaccia({o_dode+5, o_dode+4, o_dode+7, o_dode+6, o_dode+5});
+    aggiungiFaccia({o_dode+9, o_dode+17, o_dode+18, o_dode+19, o_dode+14});
+
+    // === ICOSAEDRO ===
+    unsigned int o_icosa = o_dode + 20;
+    aggiungiFaccia({o_icosa+0, o_icosa+1, o_icosa+2});
+    aggiungiFaccia({o_icosa+0, o_icosa+2, o_icosa+3});
+    aggiungiFaccia({o_icosa+0, o_icosa+3, o_icosa+4});
+    aggiungiFaccia({o_icosa+0, o_icosa+4, o_icosa+5});
+    aggiungiFaccia({o_icosa+0, o_icosa+5, o_icosa+1});
+    aggiungiFaccia({o_icosa+1, o_icosa+6, o_icosa+2});
+    aggiungiFaccia({o_icosa+2, o_icosa+6, o_icosa+7});
+    aggiungiFaccia({o_icosa+2, o_icosa+7, o_icosa+3});
+    aggiungiFaccia({o_icosa+3, o_icosa+7, o_icosa+8});
+    aggiungiFaccia({o_icosa+3, o_icosa+8, o_icosa+4});
+    aggiungiFaccia({o_icosa+4, o_icosa+8, o_icosa+9});
+    aggiungiFaccia({o_icosa+4, o_icosa+9, o_icosa+5});
+    aggiungiFaccia({o_icosa+5, o_icosa+9, o_icosa+6});
+    aggiungiFaccia({o_icosa+5, o_icosa+6, o_icosa+1});
+    aggiungiFaccia({o_icosa+6, o_icosa+9, o_icosa+8});
+    aggiungiFaccia({o_icosa+6, o_icosa+8, o_icosa+7});
+
+    mesh.NumCell2Ds = idFaccia;
+}
+
+
 
 bool ImportMesh(PoliedriMesh& mesh)
 {
@@ -178,11 +273,11 @@ bool ImportMesh(PoliedriMesh& mesh)
     if(!Cell1Ds(mesh))
         return false;
 	
-/*
+	
 	// Importa le celle
     if(!Cell2Ds(mesh))
         return false;
-*/
+
     return true;
 
 }
@@ -225,35 +320,59 @@ bool Cell1Ds(PoliedriMesh& mesh) {
     return true;
 }
 
-    
-    /*
-    
-
-    // Scrittura Cell2Ds.txt
-    std::ofstream file2("./Cell2Ds.txt");
-    for (const auto& f : facce) {
-        file2 << f.id << " " << f.numero_vertici;
-        for (int id_vertice : f.id_vertici) file2 << " " << id_vertice;
-        file2 << " " << f.numero_lati;
-        for (int id_lato : f.id_lati) file2 << " " << id_lato;
-        file2 << "\n";
+// Scrittura Cell2Ds.txt
+bool Cell2Ds(PoliedriMesh& mesh) {
+    ofstream file("Cell2Ds.txt");
+    if (file.fail()) {
+        cerr << "Errore nell'apertura del file Cell2Ds.txt" << endl;
+        return false;
     }
-    file2.close();
 
-    // Scrittura Cell3Ds.txt
-    std::ofstream file3("./Cell3Ds.txt");
-    file3 << poliedro.id << " " << poliedro.numero_vertici;
-    for (int id_vertice : poliedro.id_vertici) file3 << " " << id_vertice;
-    file3 << " " << poliedro.numero_lati;
-    for (int id_lato : poliedro.id_lati) file3 << " " << id_lato;
-    file3 << " " << poliedro.numero_facce;
-    for (int id_faccia : poliedro.id_facce) file3 << " " << id_faccia;
-    file3 << "\n";
-    file3.close();
+    for (unsigned int i = 0; i < mesh.NumCell2Ds; ++i) {
+        file << mesh.Cell2DsId[i] << " ";
 
-    std::cout << "Tutti i file Cell0Ds.txt–Cell3Ds.txt sono stati generati.\n";
-    return 0;
-}*/
+        for (auto v : mesh.Cell2DsVertices[i])
+            file << v << " ";
+        file << "| ";
+
+        for (auto e : mesh.Cell2DsEdges[i])
+            file << e << " ";
+        file << endl;
+    }
+
+    file.close();
+    return true;
+}
+
+
+bool Cell3Ds(PoliedriMesh& mesh) {
+    ofstream file("Cell3Ds.txt");
+    if (file.fail()) {
+        cerr << "Errore nell'apertura del file Cell3Ds.txt" << endl;
+        return false;
+    }
+
+    file << 0 << " "; // ID del poliedro
+
+    // Vertici
+    file << mesh.NumCell0Ds << " ";
+    for (auto id : mesh.Cell0DsId)
+        file << id << " ";
+
+    // Lati
+    file << mesh.NumCell1Ds << " ";
+    for (auto id : mesh.Cell1DsId)
+        file << id << " ";
+
+    // Facce
+    file << mesh.NumCell2Ds << " ";
+    for (auto id : mesh.Cell2DsId)
+        file << id << " ";
+
+    file << endl;
+    file.close();
+    return true;
+}
 
 
 }

@@ -318,6 +318,63 @@ bool Cell1Ds(PoliedriMesh& mesh) {
 
     file.close();
     return true;
+
+}
+
+// Scrittura Cell2Ds.txt
+bool Cell2Ds(PoliedriMesh& mesh) {
+    ofstream file("Cell2Ds.txt");
+    if (file.fail()) {
+        cerr << "Errore nell'apertura del file Cell2Ds.txt" << endl;
+        return false;
+    }
+
+    for (unsigned int i = 0; i < mesh.NumCell2Ds; ++i) {
+        file << mesh.Cell2DsId[i] << " ";
+
+        for (auto v : mesh.Cell2DsVertices[i])
+            file << v << " ";
+        file << "| ";
+
+        for (auto e : mesh.Cell2DsEdges[i])
+            file << e << " ";
+        file << endl;
+    }
+
+    file.close();
+    return true;
+}
+
+
+bool Cell3Ds(PoliedriMesh& mesh) {
+    ofstream file("Cell3Ds.txt");
+    if (file.fail()) {
+        cerr << "Errore nell'apertura del file Cell3Ds.txt" << endl;
+        return false;
+    }
+
+    file << 0 << " "; // ID del poliedro
+
+    // Vertici
+    file << mesh.NumCell0Ds << " ";
+    for (auto id : mesh.Cell0DsId)
+        file << id << " ";
+
+    // Lati
+    file << mesh.NumCell1Ds << " ";
+    for (auto id : mesh.Cell1DsId)
+        file << id << " ";
+
+    // Facce
+    file << mesh.NumCell2Ds << " ";
+    for (auto id : mesh.Cell2DsId)
+        file << id << " ";
+
+    file << endl;
+    file.close();
+    return true;
+}
+
 }
 
 // Scrittura Cell2Ds.txt

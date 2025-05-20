@@ -28,46 +28,67 @@ list(APPEND ProgettoPCS2025_LINKED_LIBRARIES PRIVATE Threads::Threads)
 
 ## GTest
 find_package(GTest REQUIRED)
-
 list(APPEND ProgettoPCS2025_LINKED_LIBRARIES PRIVATE GTest::gtest)
 list(APPEND ProgettoPCS2025_LINKED_LIBRARIES PRIVATE GTest::gtest_main)
 list(APPEND ProgettoPCS2025_LINKED_LIBRARIES PRIVATE GTest::gmock)
 list(APPEND ProgettoPCS2025_LINKED_LIBRARIES PRIVATE GTest::gmock_main)
 
-############################# Add subdirectory ###########################################
-add_subdirectory(src) #cerca il file CMakeLists contenuto nella cartella src
+# Add subdirectories (they must contain their own CMakeLists.txt)
+add_subdirectory(src)
 add_subdirectory(ExportParaview)
 add_subdirectory(src_test)
 
-list(APPEND ProgettoPCS2025_sources ${src_sources} ${src_paraview_souces})
+# Collect sources, headers, includes
+list(APPEND ProgettoPCS2025_sources ${src_sources} ${src_paraview_sources})  
 list(APPEND ProgettoPCS2025_includes ${src_includes} ${src_paraview_includes})
 list(APPEND ProgettoPCS2025_headers ${src_headers} ${src_paraview_headers})
 
+# Collect sources, headers, includes exported from src
+list(APPEND ProgettoPCS2025_sources ${PoliedriMesh_sources})
+list(APPEND ProgettoPCS2025_headers ${PoliedriMesh_headers})
+list(APPEND ProgettoPCS2025_includes ${PoliedriMesh_includes})
+
+#Append test sources/includes
 list(APPEND ProgettoPCS2025_TEST_sources ${${PROJECT_NAME}_sources} ${src_test_sources})
 list(APPEND ProgettoPCS2025_TEST_headers ${${PROJECT_NAME}_headers} ${src_test_headers})
 list(APPEND ProgettoPCS2025_TEST_includes ${${PROJECT_NAME}_includes} ${src_test_includes})
 
-############################# Copy file ##################################
+# Copy files (ok così)
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/PoliedriMesh/Cell0Ds.txt DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/PoliedriMesh/Cell1Ds)
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/PoliedriMesh/Cell0Ds.txt DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/PoliedriMesh/Cell2Ds)
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/PoliedriMesh/Cell0Ds.txt DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/PoliedriMesh/Cell3Ds)
 
-file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/PoliedriMesh/Cell0Ds.txt DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/PoliedriMesh/Cell1Ds.txt ${CMAKE_CURRENT_SOURCE_DIR}/PoliedriMesh/Cell2Ds.txt ${CMAKE_CURRENT_SOURCE_DIR}/PoliedriMesh/Cell3Ds.txt)
+########################### Add Executable: ProgettoPCS2025 ##############################
 
-########################### Add executable ##############################
+add_executable(${PROJECT_NAME} 
+    main.cpp 
+    ${ProgettoPCS2025_sources}
+    ${ProgettoPCS2025_headers}
+)
 
-# Add two executables: ProgettoPCS2025 and ProgettoPCS2025_TEST
-
-add_executable(${PROJECT_NAME} main.cpp 
-			   ${ProgettoPCS2025_sources}
-			   ${ProgettoPCS2025_headers})
 target_include_directories(${PROJECT_NAME} PUBLIC
-						   ${ProgettoPCS2025_includes})
+    ${ProgettoPCS2025_includes}
+    ${CMAKE_CURRENT_SOURCE_DIR}/PoliedriMesh
+)
+
 target_link_libraries(${PROJECT_NAME} PUBLIC ${ProgettoPCS2025_LINKED_LIBRARIES})
 target_compile_options(${PROJECT_NAME} PUBLIC -fPIC)
 
-add_executable(${PROJECT_NAME}_TEST main_test.cpp 
-			   ${ProgettoPCS2025_TEST_sources}
-			   ${ProgettoPCS2025_TEST_headers})
-				
+########################### Add Executable: ProgettoPCS2025_TEST ##############################
+
+add_executable(${PROJECT_NAME}_TEST 
+    main_test.cpp 
+    ${ProgettoPCS2025_TEST_sources}
+    ${ProgettoPCS2025_TEST_headers}
+)
+
 target_include_directories(${PROJECT_NAME}_TEST PUBLIC
-						   ${ProgettoPCS2025_TEST_includes})
+    ${ProgettoPCS2025_TEST_includes}
+    ${CMAKE_CURRENT_SOURCE_DIR}/PoliedriMesh
+)
+
 target_link_libraries(${PROJECT_NAME}_TEST PUBLIC ${ProgettoPCS2025_LINKED_LIBRARIES})
 target_compile_options(${PROJECT_NAME}_TEST PUBLIC -fPIC)
+
+
+

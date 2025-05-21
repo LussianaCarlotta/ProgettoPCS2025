@@ -171,6 +171,7 @@ void AggiungiLati(PoliedriMesh& mesh) {
     mesh.NumCell1Ds = idLato;
 }
 
+
 void aggiungiFaccia(
     PoliedriMesh& mesh,
     unsigned int& idFaccia,
@@ -288,7 +289,73 @@ void AggiungiFacce(PoliedriMesh& mesh) {
     mesh.NumCell2Ds = idFaccia;
 }
 
+/*
+void AggiungiFacce(PoliedriMesh& mesh) {
+    unsigned int idFaccia = 0;
 
+    // TETRAEDRO (lati 0-5)
+    aggiungiFaccia(mesh, idFaccia, {0, 1, 3});
+    aggiungiFaccia(mesh, idFaccia, {0, 2, 4});
+    aggiungiFaccia(mesh, idFaccia, {1, 2, 5});
+    aggiungiFaccia(mesh, idFaccia, {3, 4, 5});
+
+    // CUBO (lati 6-17)
+    aggiungiFaccia(mesh, idFaccia, {6, 7, 8, 9});
+    aggiungiFaccia(mesh, idFaccia, {10, 11, 12, 13});
+    aggiungiFaccia(mesh, idFaccia, {6, 14, 10, 15});
+    aggiungiFaccia(mesh, idFaccia, {7, 11, 16, 14});
+    aggiungiFaccia(mesh, idFaccia, {8, 12, 17, 16});
+    aggiungiFaccia(mesh, idFaccia, {9, 13, 15, 17});
+
+    // OTTAEDRO (lati 18-29)
+    aggiungiFaccia(mesh, idFaccia, {18, 26, 24});
+    aggiungiFaccia(mesh, idFaccia, {24, 27, 19});
+    aggiungiFaccia(mesh, idFaccia, {19, 28, 20});
+    aggiungiFaccia(mesh, idFaccia, {20, 25, 18});
+    aggiungiFaccia(mesh, idFaccia, {21, 28, 19});
+    aggiungiFaccia(mesh, idFaccia, {21, 27, 22});
+    aggiungiFaccia(mesh, idFaccia, {22, 26, 23});
+    aggiungiFaccia(mesh, idFaccia, {23, 25, 21});
+
+    // DODECAEDRO (lati 30-79)
+    aggiungiFaccia(mesh, idFaccia, {30, 31, 38, 43, 32});
+    aggiungiFaccia(mesh, idFaccia, {31, 33, 47, 38});
+    aggiungiFaccia(mesh, idFaccia, {33, 45, 49, 47});
+    aggiungiFaccia(mesh, idFaccia, {45, 35, 58, 49});
+    aggiungiFaccia(mesh, idFaccia, {35, 34, 55, 58});
+    aggiungiFaccia(mesh, idFaccia, {34, 41, 50, 55});
+    aggiungiFaccia(mesh, idFaccia, {41, 36, 39, 50});
+    aggiungiFaccia(mesh, idFaccia, {36, 37, 44, 39});
+    aggiungiFaccia(mesh, idFaccia, {37, 30, 43, 44});
+    aggiungiFaccia(mesh, idFaccia, {32, 43, 37, 36});
+    aggiungiFaccia(mesh, idFaccia, {32, 36, 41, 34, 30});
+    aggiungiFaccia(mesh, idFaccia, {38, 47, 49, 58, 55});
+
+    // ICOSAEDRO (lati 80-102)
+    aggiungiFaccia(mesh, idFaccia, {80, 81, 85});
+    aggiungiFaccia(mesh, idFaccia, {81, 82, 86});
+    aggiungiFaccia(mesh, idFaccia, {82, 83, 87});
+    aggiungiFaccia(mesh, idFaccia, {83, 84, 88});
+    aggiungiFaccia(mesh, idFaccia, {84, 80, 89});
+    aggiungiFaccia(mesh, idFaccia, {80, 90, 81});
+    aggiungiFaccia(mesh, idFaccia, {81, 91, 82});
+    aggiungiFaccia(mesh, idFaccia, {82, 92, 83});
+    aggiungiFaccia(mesh, idFaccia, {83, 93, 84});
+    aggiungiFaccia(mesh, idFaccia, {84, 94, 80});
+    aggiungiFaccia(mesh, idFaccia, {90, 95, 91});
+    aggiungiFaccia(mesh, idFaccia, {91, 96, 92});
+    aggiungiFaccia(mesh, idFaccia, {92, 97, 93});
+    aggiungiFaccia(mesh, idFaccia, {93, 98, 94});
+    aggiungiFaccia(mesh, idFaccia, {94, 99, 90});
+    aggiungiFaccia(mesh, idFaccia, {95, 96, 91});
+    aggiungiFaccia(mesh, idFaccia, {96, 97, 92});
+    aggiungiFaccia(mesh, idFaccia, {97, 98, 93});
+    aggiungiFaccia(mesh, idFaccia, {98, 99, 94});
+    aggiungiFaccia(mesh, idFaccia, {99, 95, 90});
+
+    mesh.NumCell2Ds = idFaccia;
+}
+*/
 
 bool ImportMesh(PoliedriMesh& mesh)
 {

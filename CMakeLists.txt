@@ -54,9 +54,10 @@ list(APPEND ProgettoPCS2025_TEST_headers ${${PROJECT_NAME}_headers} ${src_test_h
 list(APPEND ProgettoPCS2025_TEST_includes ${${PROJECT_NAME}_includes} ${src_test_includes})
 
 # Copy files (ok così)
-file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/PoliedriMesh/Cell0Ds.txt DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/PoliedriMesh/Cell1Ds)
-file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/PoliedriMesh/Cell0Ds.txt DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/PoliedriMesh/Cell2Ds)
-file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/PoliedriMesh/Cell0Ds.txt DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/PoliedriMesh/Cell3Ds)
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/PoliedriMesh/Cell0Ds.txt DESTINATION ${CMAKE_BINARY_DIR}/Cell1Ds)
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/PoliedriMesh/Cell0Ds.txt DESTINATION ${CMAKE_BINARY_DIR}/Cell2Ds)
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/PoliedriMesh/Cell0Ds.txt DESTINATION ${CMAKE_BINARY_DIR}/Cell3Ds)
+
 
 ########################### Add Executable: ProgettoPCS2025 ##############################
 

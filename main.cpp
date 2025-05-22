@@ -18,7 +18,8 @@ int main()
 	
 	aggiungiFacce(mesh);
 	
-	if (!Cell3Ds(mesh)) return false;
+	if (!Cell3Ds(mesh)) 
+		return false;
 	
 	Export(mesh);
 

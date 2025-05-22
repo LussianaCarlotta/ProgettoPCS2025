@@ -204,11 +204,58 @@ void AggiungiLati(PoliedriMesh& mesh) {
 			{{23, 29, 25}},
 			{{28, 20, 19}}
 		};
+		
+		vector<FacciaInfo> facce_dode = {
+			{{30, 33, 35, 37, 31}}, 
+			{{30, 34, 45, 44, 32}},
+			{{31, 39, 40, 42, 32}},
+			{{33, 34, 47, 48, 36}},
+			{{35, 36, 50, 51, 38}},
+			{{37, 38, 53, 41, 39}},
+			// facce dietro
+			{{55, 43, 40, 41, 54}},
+			{{56, 46, 44, 42, 43}},
+			{{57, 49, 47, 45, 46}},
+			{{58, 52, 50, 48, 49}},
+			{{59, 54, 53, 51, 52}},
+			{{55, 56, 57, 58, 59}},
+			
+		};
+		
+		vector<FacciaInfo> facce_icosa = {
+			{{60, 65, 61}}, 
+			{{60, 69, 64}},
+			{{61, 66, 62}},
+			{{62, 67, 63}},
+			{{63, 68, 64}},
+			
+			{{65, 71, 72}},
+			{{72, 82, 73}},
+			{{66, 73, 74}},
+			{{74, 83, 75}},
+			{{75, 76, 67}},
+			
+			// facce dietro
+			{{85, 86, 81}},
+			{{85, 89, 80}},
+			{{86, 82, 87}},
+			{{87, 83, 88}},
+			{{88, 84, 89}},
+			
+			{{81, 70, 71}},
+			{{70, 79, 69}},
+			{{79, 80, 78}},
+			{{78, 77, 68}},
+			{{77, 84, 76}},
+			
+		};
 	
 		vector<FacciaInfo> tutteLeFacce;
 		tutteLeFacce.insert(tutteLeFacce.end(), facce_tetra.begin(), facce_tetra.end());
 		tutteLeFacce.insert(tutteLeFacce.end(), facce_cubo.begin(), facce_cubo.end());
 		tutteLeFacce.insert(tutteLeFacce.end(), facce_otta.begin(), facce_otta.end());
+		tutteLeFacce.insert(tutteLeFacce.end(), facce_dode.begin(), facce_dode.end());
+		tutteLeFacce.insert(tutteLeFacce.end(), facce_icosa.begin(), facce_icosa.end());
 		
 		for (const auto& faccia : tutteLeFacce) {
 
@@ -270,7 +317,48 @@ void AggiungiLati(PoliedriMesh& mesh) {
 	
 		mesh.NumCell2Ds = idFaccia;
 	}
+	
+	/*
+	void aggiungiPoliedri(PoliedriMesh& mesh) {
+		// ID del nuovo poliedro (indice corrente)
+		unsigned int id = mesh.NumCell3Ds;
 
+		// Aggiunta ID
+		mesh.Cell3DsId.push_back(id);
+
+		// Aggiunta vertici
+		unsigned int numVertici = mesh.Cell0DsId.size();
+		mesh.Cell3DsNumVertices.push_back(numVertici);
+
+		array<unsigned int, 20> vertici = {};
+		for (unsigned int i = 0; i < numVertici; ++i)
+			vertici[i] = mesh.Cell0DsId[i];
+		mesh.Cell3DsVertices.push_back(vertici);
+
+		// Aggiunta lati
+		unsigned int numLati = mesh.Cell1DsId.size();
+		mesh.Cell3DsNumEdges.push_back(numLati);
+
+		array<unsigned int, 30> lati = {};
+		for (unsigned int i = 0; i < numLati; ++i)
+			lati[i] = mesh.Cell1DsId[i];
+		mesh.Cell3DsEdges.push_back(lati);
+
+		// Aggiunta facce
+		unsigned int numFacce = mesh.Cell2DsId.size();
+		mesh.Cell3DsNumFaces.push_back(numFacce);
+
+		array<unsigned int, 20> facce = {};
+		for (unsigned int i = 0; i < numFacce; ++i)
+			facce[i] = mesh.Cell2DsId[i];
+		mesh.Cell3DsFaces.push_back(facce);
+
+		// Incremento contatore
+		mesh.NumCell3Ds++;
+		*/
+
+
+	
 
 	bool ImportMesh(PoliedriMesh& mesh)
 	{
@@ -283,6 +371,8 @@ void AggiungiLati(PoliedriMesh& mesh) {
 		AggiungiLati(mesh);
 		
 		aggiungiFacce(mesh);
+		
+		//aggiungiPoliedri(mesh);
 		
 	
 		// Importa i vertici 
@@ -297,7 +387,11 @@ void AggiungiLati(PoliedriMesh& mesh) {
 		// Importa le celle
 		if(!Cell2Ds(mesh))
 			return false;
-	
+		
+		// Importa i poliedri
+		if(!Cell3Ds(mesh))
+			return false;
+		
 		return true;
 	
 	}
@@ -394,5 +488,7 @@ void AggiungiLati(PoliedriMesh& mesh) {
 		file.close();
 		return true;
 	}
+
+
 
 }

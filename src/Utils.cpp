@@ -5,6 +5,7 @@
 #include <iomanip>
 #include <vector>
 #include <cmath>
+#include <set>
 
 using namespace std;
 using namespace Eigen;
@@ -130,25 +131,25 @@ void AggiungiLati(PoliedriMesh& mesh) {
     // Dodecaedro
     unsigned int o_dode = o_otta + 6;
 	vector<pair<unsigned int, unsigned int>> lati_dode = {
-		{0,1},{0,4},{0,5},
-		{1,7},{1,8},{1,9},
-		{2,3},{2,6},{2,7},{2,11},{2,14},
-		{3,9},{3,10},{3,19},
-		{4,5},{4,7},{4,16},
-		{5,6},{5,12},{5,0}, {5, 16},
-		{6,13},{6,7},{6,12},
-		{7,14},{7,13},
-		{8,15},{8,17},
-		{9,13},{9,16},{9,17},
-		{10,14},{10,18},
-		{11,12},{11,15},
-		{12,15},
-		{13,16},
-		{14,15},{14,19},{14,9},
-		{15,19},
-		{16,17},
-		{17,18},
-		{18,19}
+		{0, 1}, {0, 4}, {0, 7},
+		{1, 2}, {1, 9},
+		{2, 3}, {2, 11},
+		{3, 4}, {3, 13},
+		{4, 5},
+		{5, 6}, {5, 14},
+		{6, 7}, {6, 16},
+		{7, 8},
+		{8, 9}, {8, 17},
+		{9, 10},
+		{10, 11}, {10, 18},
+		{11, 12},
+		{12, 13}, {12, 19},
+		{13, 14},
+		{14, 15}, {15, 16},
+		{16, 17},
+		{17, 18},
+		{18, 19},
+		{19, 15}
 	};
     for (auto& l : lati_dode)
         aggiungiLato(mesh, idLato, l.first + o_dode, l.second + o_dode);
@@ -158,11 +159,10 @@ void AggiungiLati(PoliedriMesh& mesh) {
 	vector<pair<unsigned int, unsigned int>> lati_icosa = {
 		{0, 1}, {0, 2}, {0, 3}, {0, 4}, {0, 5},
 		{1, 2}, {2, 3}, {3, 4}, {4, 5}, {5, 1},
-		{1, 6}, {2, 6},
-		{2, 7}, {3, 7},
-		{3, 8}, {4, 8},
-		{4, 9}, {5, 9},
-		{5, 6}, {6, 7}, {7, 8}, {8, 9}, {9, 6}
+		{1, 6}, {1, 7}, {2, 7}, {2, 8}, 
+		{3, 8}, {3, 9}, {4, 9}, {4, 10},
+		{5, 10}, {5, 6}, {6, 10}, {6, 7}, {7, 8}, {8, 9}, {9,10},
+		{11, 6}, {11, 7}, {11, 8}, {11, 9}, {11, 10}	
 	};
 	
 	for (auto& l : lati_icosa)
@@ -171,311 +171,228 @@ void AggiungiLati(PoliedriMesh& mesh) {
     mesh.NumCell1Ds = idLato;
 }
 
-
-void aggiungiFaccia(
-    PoliedriMesh& mesh,
-    unsigned int& idFaccia,
-    const std::vector<unsigned int>& vertici,
-    const std::map<std::pair<unsigned int, unsigned int>, std::pair<unsigned int, bool>>& lato_da_vertici)
-{
-    mesh.Cell2DsId.push_back(idFaccia++);
-    mesh.Cell2DsVertices.push_back(vertici);
-
-    std::vector<unsigned int> lati;
-    for (size_t i = 0; i < vertici.size(); ++i) {
-        unsigned int a = vertici[i];
-        unsigned int b = vertici[(i + 1) % vertici.size()];
-
-        auto it = lato_da_vertici.find({a, b});
-        if (it == lato_da_vertici.end()) {
-            std::cerr << "Errore: lato mancante tra " << a << " e " << b << std::endl;
-            std::exit(EXIT_FAILURE);
-        }
-
-        unsigned int idLato = it->second.first;
-        bool orientato = it->second.second;
-
-        // Se non è orientato correttamente, inverti l'ordine dei vertici nella faccia
-        if (!orientato) {
-            std::cerr << "Attenzione: orientamento errato tra " << a << " e " << b << std::endl;
-            // Qui potresti anche correggere l’ordine dei vertici oppure fare debug.
-        }
-
-        lati.push_back(idLato);
-    }
-
-    mesh.Cell2DsEdges.push_back(lati);
-}
-
-
-void AggiungiFacce(PoliedriMesh& mesh) {
-
-    unsigned int idFaccia = 0;
-
-    // Mappa (dizionario) per cercare ID lato da 2 vertici
-	map<pair<unsigned int, unsigned int>, pair<unsigned int, bool>> lato_da_vertici;    
-	for (unsigned int i = 0; i < mesh.NumCell1Ds; ++i) {
-        unsigned int v1 = mesh.Cell1DsExtrema(0, i);
-        unsigned int v2 = mesh.Cell1DsExtrema(1, i);
-        lato_da_vertici[{v1, v2}] = {i, true};
-        lato_da_vertici[{v2, v1}] = {i, false};  // bidirezionale, da v1->v2, v2->v1
-    }
-
-    // TETRAEDRO 
-    unsigned int o_tetra = 0;
-    aggiungiFaccia(mesh, idFaccia, {o_tetra+0, o_tetra+1, o_tetra+2}, lato_da_vertici);
-    aggiungiFaccia(mesh, idFaccia, {o_tetra+0, o_tetra+1, o_tetra+3}, lato_da_vertici);
-    aggiungiFaccia(mesh, idFaccia, {o_tetra+0, o_tetra+2, o_tetra+3}, lato_da_vertici);
-    aggiungiFaccia(mesh, idFaccia, {o_tetra+1, o_tetra+2, o_tetra+3}, lato_da_vertici);
-
-    // CUBO 
-    unsigned int o_cubo = o_tetra + 4;
-    aggiungiFaccia(mesh, idFaccia, {o_cubo+0, o_cubo+1, o_cubo+3, o_cubo+2}, lato_da_vertici);
-    aggiungiFaccia(mesh, idFaccia, {o_cubo+4, o_cubo+5, o_cubo+7, o_cubo+6}, lato_da_vertici);
-    aggiungiFaccia(mesh, idFaccia, {o_cubo+0, o_cubo+4, o_cubo+5, o_cubo+1}, lato_da_vertici);
-    aggiungiFaccia(mesh, idFaccia, {o_cubo+1, o_cubo+5, o_cubo+7, o_cubo+3}, lato_da_vertici);
-    aggiungiFaccia(mesh, idFaccia, {o_cubo+3, o_cubo+7, o_cubo+6, o_cubo+2}, lato_da_vertici);
-    aggiungiFaccia(mesh, idFaccia, {o_cubo+2, o_cubo+6, o_cubo+4, o_cubo+0}, lato_da_vertici);
-
-    // OTTAEDRO
-    unsigned int o_otta = o_cubo + 8;
-    aggiungiFaccia(mesh, idFaccia, {o_otta+0, o_otta+2, o_otta+4}, lato_da_vertici);
-    aggiungiFaccia(mesh, idFaccia, {o_otta+0, o_otta+4, o_otta+3}, lato_da_vertici);
-    aggiungiFaccia(mesh, idFaccia, {o_otta+0, o_otta+3, o_otta+5}, lato_da_vertici);
-    aggiungiFaccia(mesh, idFaccia, {o_otta+0, o_otta+5, o_otta+2}, lato_da_vertici);
-    aggiungiFaccia(mesh, idFaccia, {o_otta+1, o_otta+2, o_otta+5}, lato_da_vertici);
-    aggiungiFaccia(mesh, idFaccia, {o_otta+1, o_otta+5, o_otta+3}, lato_da_vertici);
-    aggiungiFaccia(mesh, idFaccia, {o_otta+1, o_otta+3, o_otta+4}, lato_da_vertici);
-    aggiungiFaccia(mesh, idFaccia, {o_otta+1, o_otta+4, o_otta+2}, lato_da_vertici);
-
-    // DODECAEDRO
-    unsigned int o_dode = o_otta + 6;
-    aggiungiFaccia(mesh, idFaccia, {o_dode+0, o_dode+1, o_dode+9, o_dode+16, o_dode+5}, lato_da_vertici);
-    aggiungiFaccia(mesh, idFaccia,{o_dode+1, o_dode+8, o_dode+17, o_dode+9}, lato_da_vertici);
-    aggiungiFaccia(mesh, idFaccia,{o_dode+8, o_dode+10, o_dode+18, o_dode+17}, lato_da_vertici);
-    aggiungiFaccia(mesh, idFaccia,{o_dode+10, o_dode+3, o_dode+19, o_dode+18}, lato_da_vertici);
-    aggiungiFaccia(mesh, idFaccia,{o_dode+3, o_dode+2, o_dode+14, o_dode+19}, lato_da_vertici);
-    aggiungiFaccia(mesh, idFaccia,{o_dode+2, o_dode+11, o_dode+15, o_dode+14}, lato_da_vertici);
-    aggiungiFaccia(mesh, idFaccia,{o_dode+11, o_dode+6, o_dode+12, o_dode+15}, lato_da_vertici);
-    aggiungiFaccia(mesh, idFaccia,{o_dode+6, o_dode+7, o_dode+13, o_dode+12}, lato_da_vertici);
-    aggiungiFaccia(mesh, idFaccia,{o_dode+7, o_dode+4, o_dode+16, o_dode+13}, lato_da_vertici);
-    aggiungiFaccia(mesh, idFaccia,{o_dode+4, o_dode+5, o_dode+0, o_dode+16}, lato_da_vertici);
-    aggiungiFaccia(mesh, idFaccia,{o_dode+5, o_dode+4, o_dode+7, o_dode+6}, lato_da_vertici);
-    aggiungiFaccia(mesh, idFaccia,{o_dode+9, o_dode+17, o_dode+18, o_dode+19, o_dode+14}, lato_da_vertici);
-
-    // ICOSAEDRO – 20 facce triangolari
-	unsigned int o_icosa = o_dode + 20;
+	void aggiungiFacce(PoliedriMesh& mesh) {
+		unsigned int idFaccia = 0;
 	
-	aggiungiFaccia(mesh, idFaccia,{o_icosa+0, o_icosa+1, o_icosa+2}, lato_da_vertici);
-	aggiungiFaccia(mesh, idFaccia,{o_icosa+0, o_icosa+2, o_icosa+3}, lato_da_vertici);
-	aggiungiFaccia(mesh, idFaccia,{o_icosa+0, o_icosa+3, o_icosa+4}, lato_da_vertici);
-	aggiungiFaccia(mesh, idFaccia,{o_icosa+0, o_icosa+4, o_icosa+5}, lato_da_vertici);
-	aggiungiFaccia(mesh, idFaccia,{o_icosa+0, o_icosa+5, o_icosa+1}, lato_da_vertici);
-	aggiungiFaccia(mesh, idFaccia,{o_icosa+1, o_icosa+6, o_icosa+2}, lato_da_vertici);
-	aggiungiFaccia(mesh, idFaccia,{o_icosa+2, o_icosa+6, o_icosa+7}, lato_da_vertici);
-	aggiungiFaccia(mesh, idFaccia,{o_icosa+2, o_icosa+7, o_icosa+3}, lato_da_vertici);
-	aggiungiFaccia(mesh, idFaccia,{o_icosa+3, o_icosa+7, o_icosa+8}, lato_da_vertici);
-	aggiungiFaccia(mesh, idFaccia,{o_icosa+3, o_icosa+8, o_icosa+4}, lato_da_vertici);
-	aggiungiFaccia(mesh, idFaccia,{o_icosa+4, o_icosa+8, o_icosa+9}, lato_da_vertici);
-	aggiungiFaccia(mesh, idFaccia,{o_icosa+4, o_icosa+9, o_icosa+5}, lato_da_vertici);
-	aggiungiFaccia(mesh, idFaccia,{o_icosa+5, o_icosa+9, o_icosa+6}, lato_da_vertici);
-	aggiungiFaccia(mesh, idFaccia,{o_icosa+5, o_icosa+6, o_icosa+1}, lato_da_vertici);
-	aggiungiFaccia(mesh, idFaccia,{o_icosa+6, o_icosa+9, o_icosa+8}, lato_da_vertici);
-	aggiungiFaccia(mesh, idFaccia,{o_icosa+6, o_icosa+8, o_icosa+7}, lato_da_vertici);
-	aggiungiFaccia(mesh, idFaccia,{o_icosa+7, o_icosa+8, o_icosa+6}, lato_da_vertici);
-	aggiungiFaccia(mesh, idFaccia,{o_icosa+8, o_icosa+9, o_icosa+6}, lato_da_vertici);
-	aggiungiFaccia(mesh, idFaccia,{o_icosa+9, o_icosa+6, o_icosa+7}, lato_da_vertici);
-
-    mesh.NumCell2Ds = idFaccia;
-}
-
-/*
-void AggiungiFacce(PoliedriMesh& mesh) {
-    unsigned int idFaccia = 0;
-
-    // TETRAEDRO (lati 0-5)
-    aggiungiFaccia(mesh, idFaccia, {0, 1, 3});
-    aggiungiFaccia(mesh, idFaccia, {0, 2, 4});
-    aggiungiFaccia(mesh, idFaccia, {1, 2, 5});
-    aggiungiFaccia(mesh, idFaccia, {3, 4, 5});
-
-    // CUBO (lati 6-17)
-    aggiungiFaccia(mesh, idFaccia, {6, 7, 8, 9});
-    aggiungiFaccia(mesh, idFaccia, {10, 11, 12, 13});
-    aggiungiFaccia(mesh, idFaccia, {6, 14, 10, 15});
-    aggiungiFaccia(mesh, idFaccia, {7, 11, 16, 14});
-    aggiungiFaccia(mesh, idFaccia, {8, 12, 17, 16});
-    aggiungiFaccia(mesh, idFaccia, {9, 13, 15, 17});
-
-    // OTTAEDRO (lati 18-29)
-    aggiungiFaccia(mesh, idFaccia, {18, 26, 24});
-    aggiungiFaccia(mesh, idFaccia, {24, 27, 19});
-    aggiungiFaccia(mesh, idFaccia, {19, 28, 20});
-    aggiungiFaccia(mesh, idFaccia, {20, 25, 18});
-    aggiungiFaccia(mesh, idFaccia, {21, 28, 19});
-    aggiungiFaccia(mesh, idFaccia, {21, 27, 22});
-    aggiungiFaccia(mesh, idFaccia, {22, 26, 23});
-    aggiungiFaccia(mesh, idFaccia, {23, 25, 21});
-
-    // DODECAEDRO (lati 30-79)
-    aggiungiFaccia(mesh, idFaccia, {30, 31, 38, 43, 32});
-    aggiungiFaccia(mesh, idFaccia, {31, 33, 47, 38});
-    aggiungiFaccia(mesh, idFaccia, {33, 45, 49, 47});
-    aggiungiFaccia(mesh, idFaccia, {45, 35, 58, 49});
-    aggiungiFaccia(mesh, idFaccia, {35, 34, 55, 58});
-    aggiungiFaccia(mesh, idFaccia, {34, 41, 50, 55});
-    aggiungiFaccia(mesh, idFaccia, {41, 36, 39, 50});
-    aggiungiFaccia(mesh, idFaccia, {36, 37, 44, 39});
-    aggiungiFaccia(mesh, idFaccia, {37, 30, 43, 44});
-    aggiungiFaccia(mesh, idFaccia, {32, 43, 37, 36});
-    aggiungiFaccia(mesh, idFaccia, {32, 36, 41, 34, 30});
-    aggiungiFaccia(mesh, idFaccia, {38, 47, 49, 58, 55});
-
-    // ICOSAEDRO (lati 80-102)
-    aggiungiFaccia(mesh, idFaccia, {80, 81, 85});
-    aggiungiFaccia(mesh, idFaccia, {81, 82, 86});
-    aggiungiFaccia(mesh, idFaccia, {82, 83, 87});
-    aggiungiFaccia(mesh, idFaccia, {83, 84, 88});
-    aggiungiFaccia(mesh, idFaccia, {84, 80, 89});
-    aggiungiFaccia(mesh, idFaccia, {80, 90, 81});
-    aggiungiFaccia(mesh, idFaccia, {81, 91, 82});
-    aggiungiFaccia(mesh, idFaccia, {82, 92, 83});
-    aggiungiFaccia(mesh, idFaccia, {83, 93, 84});
-    aggiungiFaccia(mesh, idFaccia, {84, 94, 80});
-    aggiungiFaccia(mesh, idFaccia, {90, 95, 91});
-    aggiungiFaccia(mesh, idFaccia, {91, 96, 92});
-    aggiungiFaccia(mesh, idFaccia, {92, 97, 93});
-    aggiungiFaccia(mesh, idFaccia, {93, 98, 94});
-    aggiungiFaccia(mesh, idFaccia, {94, 99, 90});
-    aggiungiFaccia(mesh, idFaccia, {95, 96, 91});
-    aggiungiFaccia(mesh, idFaccia, {96, 97, 92});
-    aggiungiFaccia(mesh, idFaccia, {97, 98, 93});
-    aggiungiFaccia(mesh, idFaccia, {98, 99, 94});
-    aggiungiFaccia(mesh, idFaccia, {99, 95, 90});
-
-    mesh.NumCell2Ds = idFaccia;
-}
-*/
-
-bool ImportMesh(PoliedriMesh& mesh)
-{
-	mesh.NumCell0Ds = 0;
-    mesh.Cell0DsId.clear();
-    mesh.Cell0DsCoordinates.resize(3, 0);
-
-	creaPoliedriNormalizzati(mesh);
+		struct FacciaInfo {
+			vector<unsigned int> lati;
+		};
 	
-	AggiungiLati(mesh);
+		vector<FacciaInfo> facce_tetra = {
+			{{0, 1, 3}},  // Faccia 0
+			{{1, 2, 5}},  // Faccia 1
+			{{0, 4, 2}},  // Faccia 2
+			{{3, 4, 5}}   // Faccia 3
+		};
+		
+		vector<FacciaInfo> facce_cubo = { 
+			{{6, 7, 8, 9}},
+			{{10, 11, 12, 13}}, 
+			{{6, 14, 10, 15}},  
+			{{7, 17, 11, 15}},  
+			{{8, 16, 12, 17}},  
+			{{9, 16, 13, 14}}
+		};
+		
+		vector<FacciaInfo> facce_otta = {
+			{{18, 26, 20}}, 
+			{{18, 21, 27}}, 
+			{{19, 29, 21}}, 
+			{{22, 24, 26}}, 
+			{{22, 25, 27}},
+			{{23, 28, 24}}, 
+			{{23, 29, 25}},
+			{{28, 20, 19}}
+		};
 	
+		vector<FacciaInfo> tutteLeFacce;
+		tutteLeFacce.insert(tutteLeFacce.end(), facce_tetra.begin(), facce_tetra.end());
+		tutteLeFacce.insert(tutteLeFacce.end(), facce_cubo.begin(), facce_cubo.end());
+		tutteLeFacce.insert(tutteLeFacce.end(), facce_otta.begin(), facce_otta.end());
+		
+		for (const auto& faccia : tutteLeFacce) {
 
-	// Importa i vertici 
-    if(!Cell0Ds(mesh))
-        return false;
-
-	// Importa gli spigoli
-    if(!Cell1Ds(mesh))
-        return false;
+			vector<unsigned int> originalEdges = faccia.lati;
+			vector<pair<unsigned int, pair<unsigned int, unsigned int>>> edges;
 	
+			// Prepara i lati come (id, (origin, end))
+			for (auto eid : originalEdges) {
+				unsigned int a = mesh.Cell1DsExtrema(0, eid);
+				unsigned int b = mesh.Cell1DsExtrema(1, eid);
+				edges.emplace_back(eid, make_pair(a, b));
+			}
 	
-	// Importa le celle
-    if(!Cell2Ds(mesh))
-        return false;
-
-    return true;
-
-}
-
-
-// Scrittura Cell0Ds.txt
-bool Cell0Ds(PoliedriMesh& mesh) {
-	ofstream file ("./Cell0Ds.txt");
-	if (file.fail() ) {
-		cerr << "Errore nell'apertura del file Cell0Ds.txt" << endl;
-		return false;
-	}
+			vector<unsigned int> orderedEdges;
+			vector<unsigned int> orderedVertices;
 	
-
-	for(unsigned int i = 0; i < mesh.NumCell0Ds; i++){
-		file << mesh.Cell0DsId[i] << " " 
-		<< mesh.Cell0DsCoordinates(0, i) << " " 
-		<< mesh.Cell0DsCoordinates(1, i) << " " 
-		<< mesh.Cell0DsCoordinates(2, i) << endl;
-    	}
-	file.close();
-	return true;
+			// Partenza dal primo lato
+			auto [id0, ab0] = edges[0];
+			orderedEdges.push_back(id0);
+			orderedVertices.push_back(ab0.first);
+			orderedVertices.push_back(ab0.second);
+	
+			// Rimuovi il primo dalla lista dei lati rimanenti
+			edges.erase(edges.begin());
+	
+			while (!edges.empty()) {
+				bool found = false;
+				for (auto it = edges.begin(); it != edges.end(); ++it) {
+					auto [eid, ab] = *it;
+					if (ab.first == orderedVertices.back()) {
+						orderedEdges.push_back(eid);
+						orderedVertices.push_back(ab.second);
+						edges.erase(it);
+						found = true;
+						break;
+					} else if (ab.second == orderedVertices.back()) {
+						orderedEdges.push_back(eid);
+						orderedVertices.push_back(ab.first);
+						edges.erase(it);
+						found = true;
+						break;
+					}
+				}
+				if (!found) {
+					cerr << "Errore nell'ordinamento dei lati per la faccia " << idFaccia << endl;
+					return;
+				}
+			}
+	
+			// Chiude il ciclo rimuovendo l’ultimo vertice se è uguale al primo
+			if (orderedVertices.front() == orderedVertices.back())
+				orderedVertices.pop_back();
+	
+			mesh.Cell2DsId.push_back(idFaccia);
+			mesh.Cell2DsEdges.push_back(orderedEdges);
+			mesh.Cell2DsVertices.push_back(orderedVertices);
+			idFaccia++;
+		}
+	
+		mesh.NumCell2Ds = idFaccia;
 	}
 
-// Scrittura Cell1Ds.txt
-bool Cell1Ds(PoliedriMesh& mesh) {
-    ofstream file("Cell1Ds.txt");
-    if (file.fail()) {
-        cerr << "Errore nell'apertura del file Cell1Ds.txt" << endl;
-        return false;
-    }
 
-    for (unsigned int i = 0; i < mesh.NumCell1Ds; ++i) {
-        file << mesh.Cell1DsId[i] << " "
-             << mesh.Cell1DsExtrema(0, i) << " "
-             << mesh.Cell1DsExtrema(1, i) << endl;
-    }
+	bool ImportMesh(PoliedriMesh& mesh)
+	{
+		mesh.NumCell0Ds = 0;
+		mesh.Cell0DsId.clear();
+		mesh.Cell0DsCoordinates.resize(3, 0);
+	
+		creaPoliedriNormalizzati(mesh);
+		
+		AggiungiLati(mesh);
+		
+		aggiungiFacce(mesh);
+		
+	
+		// Importa i vertici 
+		if(!Cell0Ds(mesh))
+			return false;
+	
+		// Importa gli spigoli
+		if(!Cell1Ds(mesh))
+			return false;
+		
+		
+		// Importa le celle
+		if(!Cell2Ds(mesh))
+			return false;
+	
+		return true;
+	
+	}
 
-    file.close();
-    return true;
 
-}
-
-// Scrittura Cell2Ds.txt
-bool Cell2Ds(PoliedriMesh& mesh) {
-    ofstream file("Cell2Ds.txt");
-    if (file.fail()) {
-        cerr << "Errore nell'apertura del file Cell2Ds.txt" << endl;
-        return false;
-    }
-
-    for (unsigned int i = 0; i < mesh.NumCell2Ds; ++i) {
-        file << mesh.Cell2DsId[i] << " ";
-
-        for (auto v : mesh.Cell2DsVertices[i])
-            file << v << " ";
-        file << "| ";
-
-        for (auto e : mesh.Cell2DsEdges[i])
-            file << e << " ";
-        file << endl;
-    }
-
-    file.close();
-    return true;
-}
-
-// Scrittura Cell3Ds.txt
-bool Cell3Ds(PoliedriMesh& mesh) {
-    ofstream file("Cell3Ds.txt");
-    if (file.fail()) {
-        cerr << "Errore nell'apertura del file Cell3Ds.txt" << endl;
-        return false;
-    }
-
-    file << 0 << " "; // ID del poliedro
-
-    // Vertici
-    file << mesh.NumCell0Ds << " ";
-    for (auto id : mesh.Cell0DsId)
-        file << id << " ";
-
-    // Lati
-    file << mesh.NumCell1Ds << " ";
-    for (auto id : mesh.Cell1DsId)
-        file << id << " ";
-
-    // Facce
-    file << mesh.NumCell2Ds << " ";
-    for (auto id : mesh.Cell2DsId)
-        file << id << " ";
-
-    file << endl;
-    file.close();
-    return true;
-}
+	// Scrittura Cell0Ds.txt
+	bool Cell0Ds(PoliedriMesh& mesh) {
+		ofstream file ("./Cell0Ds.txt");
+		if (file.fail() ) {
+			cerr << "Errore nell'apertura del file Cell0Ds.txt" << endl;
+			return false;
+		}
+		
+	
+		for(unsigned int i = 0; i < mesh.NumCell0Ds; i++){
+			file << mesh.Cell0DsId[i] << " " 
+			<< mesh.Cell0DsCoordinates(0, i) << " " 
+			<< mesh.Cell0DsCoordinates(1, i) << " " 
+			<< mesh.Cell0DsCoordinates(2, i) << endl;
+			}
+		file.close();
+		return true;
+		}
+	
+	// Scrittura Cell1Ds.txt
+	bool Cell1Ds(PoliedriMesh& mesh) {
+		ofstream file("Cell1Ds.txt");
+		if (file.fail()) {
+			cerr << "Errore nell'apertura del file Cell1Ds.txt" << endl;
+			return false;
+		}
+	
+		for (unsigned int i = 0; i < mesh.NumCell1Ds; ++i) {
+			file << mesh.Cell1DsId[i] << " "
+				 << mesh.Cell1DsExtrema(0, i) << " "
+				 << mesh.Cell1DsExtrema(1, i) << endl;
+		}
+	
+		file.close();
+		return true;
+	
+	}
+	
+	// Scrittura Cell2Ds.txt
+	bool Cell2Ds(PoliedriMesh& mesh) {
+		ofstream file("Cell2Ds.txt");
+		if (file.fail()) {
+			cerr << "Errore nell'apertura del file Cell2Ds.txt" << endl;
+			return false;
+		}
+	
+		for (unsigned int i = 0; i < mesh.NumCell2Ds; ++i) {
+			file << mesh.Cell2DsId[i] << " ";
+	
+			for (auto v : mesh.Cell2DsVertices[i])
+				file << v << " ";
+			file << "| ";
+	
+			for (auto e : mesh.Cell2DsEdges[i])
+				file << e << " ";
+			file << endl;
+		}
+	
+		file.close();
+		return true;
+	}
+	
+	// Scrittura Cell3Ds.txt
+	bool Cell3Ds(PoliedriMesh& mesh) {
+		ofstream file("Cell3Ds.txt");
+		if (file.fail()) {
+			cerr << "Errore nell'apertura del file Cell3Ds.txt" << endl;
+			return false;
+		}
+	
+		file << 0 << " "; // ID del poliedro
+	
+		// Vertici
+		file << mesh.NumCell0Ds << " ";
+		for (auto id : mesh.Cell0DsId)
+			file << id << " ";
+	
+		// Lati
+		file << mesh.NumCell1Ds << " ";
+		for (auto id : mesh.Cell1DsId)
+			file << id << " ";
+	
+		// Facce
+		file << mesh.NumCell2Ds << " ";
+		for (auto id : mesh.Cell2DsId)
+			file << id << " ";
+	
+		file << endl;
+		file.close();
+		return true;
+	}
 
 }

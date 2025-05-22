@@ -16,11 +16,10 @@ int main()
 	
 	ImportMesh(mesh);
 	
-	AggiungiFacce(mesh);
-
-	Export(mesh);
+	aggiungiFacce(mesh);
 	
 	if (!Cell3Ds(mesh)) return false;
-
+	
+	Export(mesh);
 
 }

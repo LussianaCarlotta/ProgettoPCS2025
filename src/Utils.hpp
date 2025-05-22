@@ -34,7 +34,7 @@ namespace PoliedriLibrary
 
 	void Export(PoliedriMesh& mesh);
 	
-	void AggiungiFacce(PoliedriMesh& mesh);
+	void aggiungiFacce(PoliedriMesh& mesh);
 	
 	// verifichiamo la (4) del pfd
 	bool VerificaFacceSemplice(const PoliedriLibrary::PoliedriMesh& mesh);

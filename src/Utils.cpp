@@ -180,7 +180,7 @@ void AggiungiLati(PoliedriMesh& mesh) {
 	
 		vector<FacciaInfo> facce_tetra = {
 			{{0, 1, 3}},  // Faccia 0
-			{{1, 2, 5}},  // Faccia 1
+			{{1, 5, 2}},  // Faccia 1
 			{{0, 4, 2}},  // Faccia 2
 			{{3, 4, 5}}   // Faccia 3
 		};
@@ -263,10 +263,10 @@ void AggiungiLati(PoliedriMesh& mesh) {
 			vector<pair<unsigned int, pair<unsigned int, unsigned int>>> edges;
 	
 			// Prepara i lati come (id, (origin, end))
-			for (auto eid : originalEdges) {
-				unsigned int a = mesh.Cell1DsExtrema(0, eid);
-				unsigned int b = mesh.Cell1DsExtrema(1, eid);
-				edges.emplace_back(eid, make_pair(a, b));
+			for (auto i : originalEdges) {
+				unsigned int a = mesh.Cell1DsExtrema(0, i);
+				unsigned int b = mesh.Cell1DsExtrema(1, i);
+				edges.emplace_back(i, make_pair(a, b));
 			}
 	
 			vector<unsigned int> orderedEdges;
@@ -284,15 +284,15 @@ void AggiungiLati(PoliedriMesh& mesh) {
 			while (!edges.empty()) {
 				bool found = false;
 				for (auto it = edges.begin(); it != edges.end(); ++it) {
-					auto [eid, ab] = *it;
+					auto [i, ab] = *it;
 					if (ab.first == orderedVertices.back()) {
-						orderedEdges.push_back(eid);
+						orderedEdges.push_back(i);
 						orderedVertices.push_back(ab.second);
 						edges.erase(it);
 						found = true;
 						break;
 					} else if (ab.second == orderedVertices.back()) {
-						orderedEdges.push_back(eid);
+						orderedEdges.push_back(i);
 						orderedVertices.push_back(ab.first);
 						edges.erase(it);
 						found = true;
@@ -320,6 +320,7 @@ void AggiungiLati(PoliedriMesh& mesh) {
 	
 	/*
 	void aggiungiPoliedri(PoliedriMesh& mesh) {
+		for(unsigned i = 0; i < 5; i++){
 		// ID del nuovo poliedro (indice corrente)
 		unsigned int id = mesh.NumCell3Ds;
 
@@ -348,11 +349,11 @@ void AggiungiLati(PoliedriMesh& mesh) {
 		unsigned int numFacce = mesh.Cell2DsId.size();
 		mesh.Cell3DsNumFaces.push_back(numFacce);
 
-		array<unsigned int, 20> facce = {};
+		array<unsigned int, 30> facce = {};
 		for (unsigned int i = 0; i < numFacce; ++i)
 			facce[i] = mesh.Cell2DsId[i];
 		mesh.Cell3DsFaces.push_back(facce);
-
+		}
 		// Incremento contatore
 		mesh.NumCell3Ds++;
 		*/
@@ -398,23 +399,30 @@ void AggiungiLati(PoliedriMesh& mesh) {
 
 
 	// Scrittura Cell0Ds.txt
-	bool Cell0Ds(PoliedriMesh& mesh) {
+	bool Cell0Ds(PoliedriMesh& mesh)
+	{
 		ofstream file ("./Cell0Ds.txt");
 		if (file.fail() ) {
 			cerr << "Errore nell'apertura del file Cell0Ds.txt" << endl;
 			return false;
 		}
 		
-	
-		for(unsigned int i = 0; i < mesh.NumCell0Ds; i++){
+		int p = 3; // numero di vertici del poligono che si osserva guardando ciascuna faccia
+		int b;
+		int q = 3; // numero di vertici del poligono che si osserva guardando ciascun vertice
+		
+		// Tetraedro
+		//if(p = 3 & q = 3) {
+		for(unsigned int i = 0; i < 4; i++){
 			file << mesh.Cell0DsId[i] << " " 
 			<< mesh.Cell0DsCoordinates(0, i) << " " 
 			<< mesh.Cell0DsCoordinates(1, i) << " " 
 			<< mesh.Cell0DsCoordinates(2, i) << endl;
-			}
+		}
 		file.close();
 		return true;
-		}
+		//}
+	}
 	
 	// Scrittura Cell1Ds.txt
 	bool Cell1Ds(PoliedriMesh& mesh) {
@@ -423,7 +431,12 @@ void AggiungiLati(PoliedriMesh& mesh) {
 			cerr << "Errore nell'apertura del file Cell1Ds.txt" << endl;
 			return false;
 		}
-	
+		int p = 3; // numero di vertici del poligono che si osserva guardando ciascuna faccia
+		int b;
+		int q = 3; // numero di vertici del poligono che si osserva guardando ciascun vertice
+		
+		// Tetraedro
+		// if(p = 3 & q = 3) {
 		for (unsigned int i = 0; i < mesh.NumCell1Ds; ++i) {
 			file << mesh.Cell1DsId[i] << " "
 				 << mesh.Cell1DsExtrema(0, i) << " "
@@ -432,6 +445,7 @@ void AggiungiLati(PoliedriMesh& mesh) {
 	
 		file.close();
 		return true;
+		//} 
 	
 	}
 	

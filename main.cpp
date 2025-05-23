@@ -10,17 +10,30 @@ using namespace PoliedriLibrary;
 using namespace std;
 using namespace Eigen;
 
-int main()
+int main() 
 {
-	PoliedriMesh mesh; 
+	PoliedriMesh mesh;
+	
+	unsigned int p, q;
+	//c, b;
+
+    cout << "Inserisci i parametri p, q : ";
+    cin >> p >> q; //>> b >> c;
+	
+	if (!ScritturaCelle(mesh, p, q)) {
+    cerr << "Errore nella scrittura dei file" << endl;
+    return 1;
+}
+	
+	 
 	
 	ImportMesh(mesh);
 	
-	aggiungiFacce(mesh);
-	
-	if (!Cell3Ds(mesh)) 
-		return false;
-	
-	Export(mesh);
+	// Crea oggetto esportatore
+    Gedim::UCDUtilities esportatore;
+
+    // Esporta i poliedri su file Paraview-compatible
+    esportatore.ExportPolyhedra("output.inp", mesh.Cell0DsCoordinates, mesh.Cell3DsVertices, {}, {}, Eigen::VectorXi::Zero(mesh.NumCell3Ds));
+
 
 }

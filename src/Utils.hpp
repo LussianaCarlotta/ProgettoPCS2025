@@ -9,7 +9,7 @@ namespace PoliedriLibrary
 	// Importazione della PoliedriMesh
 	// mesh: PoliedriMesh struct
 	// viene restituito il risultato della lettura: true se ha avuto successo, false altrimenti
-	bool ImportMesh(PoliedriMesh& mesh);
+	bool ImportMesh(PoliedriMesh& mesh, unsigned int p, unsigned int q);
 	
 	// Importazione delle proprietà di Cell0Ds
 	// mesh: PoliedriMesh struct
@@ -31,9 +31,12 @@ namespace PoliedriLibrary
 	// viene restituito il risultato della scrittura: true se ha avuto successo, false altrimenti
 	//bool Cell3Ds(PoliedriMesh& mesh);
 
-	bool ScritturaCelle(PoliedriMesh& mesh, unsigned int p, unsigned int q);
 
-	//void Export(PoliedriMesh& mesh);
+	bool ScritturaCelle(PoliedriMesh& mesh, unsigned int p, unsigned int q);
+	
+	void Export(PoliedriMesh& mesh);
+	
+	
 	
 	
 	// verifichiamo la (4) del pfd

@@ -12,11 +12,11 @@ using namespace Eigen;
 namespace PoliedriLibrary {
 
 void Export (PoliedriMesh& mesh){
-		
-	if(!ImportMesh(mesh))
+	/*	
+	if(!ImportMesh(mesh, p, q))
 	{
 		cerr << "File non trovato" << endl;
-	}
+	}*/
 	
 	Gedim::UCDUtilities utilities;
 	

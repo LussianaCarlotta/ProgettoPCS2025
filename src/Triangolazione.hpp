@@ -3,5 +3,5 @@
 
 namespace PoliedriLibrary {
 	
-    void TriangolaFacceClasseI(const PoliedriMesh& meshIniziale, unsigned int b, PoliedriMesh& meshGeodetico);
+    void TriangolaFacceClasseI(int b, const PoliedriMesh& meshIniziale, PoliedriMesh& meshGeodetico);
 }

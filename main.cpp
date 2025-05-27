@@ -18,7 +18,6 @@ int main()
         return 1;
     }
 
-    // <---- CORREZIONE QUI ---->
     meshPlatonico.Cell2DsNumVertices.resize(meshPlatonico.NumCell2Ds);
     for (size_t i = 0; i < meshPlatonico.NumCell2Ds; ++i) {
         meshPlatonico.Cell2DsNumVertices[i] = meshPlatonico.Cell2DsVertices[i].size();
@@ -32,15 +31,16 @@ int main()
 
     cout << "ScritturaCelle completato" << endl;
 
-    Export(meshPlatonico);
+    Export(meshPlatonico, "Platonico");
 
     unsigned int b;
     cout << "Inserisci il parametro di triangolazione b: ";
     cin >> b;
 
     PoliedriMesh meshGeodetico;
-    TriangolaFacceClasseI(meshPlatonico, b, meshGeodetico);
-
+    
+	TriangolaFacceClasseI(b, meshPlatonico, meshGeodetico);
+	
     meshGeodetico.Cell2DsNumVertices.resize(meshGeodetico.NumCell2Ds);
     for (size_t i = 0; i < meshGeodetico.NumCell2Ds; ++i) {
         meshGeodetico.Cell2DsNumVertices[i] = meshGeodetico.Cell2DsVertices[i].size();
@@ -51,8 +51,9 @@ int main()
 	}
 
     ScritturaCelle(meshGeodetico, "Geodetico");
-    Export(meshGeodetico);
+    Export(meshGeodetico, "Geodetico");
 
+/*
     PoliedriMesh meshDuale;
     CostruisciDualMesh(meshGeodetico, meshDuale);
 
@@ -62,8 +63,8 @@ int main()
     }
 
     ScritturaCelle(meshDuale, "Duale");
-    Export(meshDuale);
-
+    Export(meshDuale, "Duale");
+*/
     return 0;
 }
 

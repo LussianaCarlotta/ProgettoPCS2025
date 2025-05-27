@@ -1,161 +1,237 @@
 #include "Triangolazione.hpp"
+#include <unordered_map>
 #include <map>
 #include <cmath>
 #include <Eigen/Dense>
 #include <vector>
-#include <set>
 #include <tuple>
+#include <iostream>
 
 using namespace Eigen;
 using namespace std;
 
 namespace PoliedriLibrary {
 
-    // Funzione di interpolazione tra due punti
-    Vector3d interpolate(const Vector3d& A, const Vector3d& B, double t) {
-        return A + t * (B - A);
+struct EdgeKey {
+    int v1, v2;
+    EdgeKey(int a, int b) {
+        if (a < b) { v1 = a; v2 = b; }
+        else       { v1 = b; v2 = a; }
+    }
+    bool operator==(const EdgeKey& other) const {
+        return v1 == other.v1 && v2 == other.v2;
+    }
+    bool operator<(const EdgeKey& other) const {
+        return tie(v1, v2) < tie(other.v1, other.v2);
+    }
+};
+
+} // namespace PoliedriLibrary
+
+namespace std {
+    template<>
+    struct hash<PoliedriLibrary::EdgeKey> {
+        size_t operator()(const PoliedriLibrary::EdgeKey& k) const {
+            return hash<int>()(k.v1) ^ (hash<int>()(k.v2) << 1);
+        }
+    };
+}
+
+namespace PoliedriLibrary {
+
+void TriangolaFacceClasseI(int b, const PoliedriMesh& meshIniziale, PoliedriMesh& meshGeodetico) {
+    if (b == 1) {
+        meshGeodetico = meshIniziale;
+        return;
     }
 
-    // Funzione che genera una griglia triangolare di classe I su una faccia
-	void TriangolaFacceClasseI(const PoliedriMesh& meshIniziale, unsigned int b, PoliedriMesh& meshGeodetico) {
-		meshGeodetico = {};
-	
-		map<Vector3d, int, bool(*)(const Vector3d&, const Vector3d&)> vertici([](const Vector3d& a, const Vector3d& b) {
-			return lexicographical_compare(a.data(), a.data() + 3, b.data(), b.data() + 3);
-		});
-	
-		vector<Vector3d> listaVertici;
-		vector<array<unsigned int, 3>> triangoli;
-		set<pair<int, int>> spigoli;
-	
-		for (size_t f = 0; f < meshIniziale.NumCell2Ds; ++f) {
-			const auto& face = meshIniziale.Cell2DsVertices[f];
-			if (face.size() != 3) continue; // Solo triangoli
-	
-			vector<Vector3d> originalVerts;
-			for (auto vid : face) {
-				originalVerts.push_back(meshIniziale.Cell0DsCoordinates.col(vid));
-			}
-	
-			vector<vector<int>> indexGrid(b + 1);
-			for (unsigned int i = 0; i <= b; ++i) {
-				indexGrid[i].resize(b - i + 1);
-				for (unsigned int j = 0; j <= b - i; ++j) {
-					unsigned int k = b - i - j;
-					Vector3d V = (originalVerts[0] * i + originalVerts[1] * j + originalVerts[2] * k) / b;
-					V.normalize();
-					int index;
-					if (vertici.count(V)) {
-						index = vertici[V];
-					} else {
-						index = listaVertici.size();
-						vertici[V] = index;
-						listaVertici.push_back(V);
-					}
-					indexGrid[i][j] = index;
-				}
-			}
-	
-			for (unsigned int i = 0; i < b; ++i) {
-				for (unsigned int j = 0; j < b - i; ++j) {
-					int a = indexGrid[i][j];
-					int b1 = indexGrid[i + 1][j];
-					int c = indexGrid[i][j + 1];
-					triangoli.push_back({
-						static_cast<unsigned int>(a),
-						static_cast<unsigned int>(b1),
-						static_cast<unsigned int>(c)
-					});
-					// perchè ho messo array prima e questi erano interi
-					spigoli.insert({min(a, b1), max(a, b1)});
-					spigoli.insert({min(a, c), max(a, c)});
-					// perchè ho messo array prima e questi erano interi
-					if (j + 1 < b - i) {
-						int d = indexGrid[i + 1][j + 1];
-						triangoli.push_back({
-							static_cast<unsigned int>(b1),
-							static_cast<unsigned int>(d),
-							static_cast<unsigned int>(c)
-						});
-						
-						spigoli.insert({min(b1, d), max(b1, d)});
-						spigoli.insert({min(d, c), max(d, c)});
-					}
-				}
-			}
-		}
-	
-		// === Popolamento della mesh ===
-	
-		// Cell0Ds (vertici)
-		meshGeodetico.NumCell0Ds = listaVertici.size();
-		meshGeodetico.Cell0DsCoordinates.resize(3, meshGeodetico.NumCell0Ds);
-		meshGeodetico.Cell0DsId.resize(meshGeodetico.NumCell0Ds);
-		for (size_t i = 0; i < listaVertici.size(); ++i) {
-			meshGeodetico.Cell0DsCoordinates.col(i) = listaVertici[i];
-			meshGeodetico.Cell0DsId[i] = i;
-		}
-	
-		// Cell1Ds (spigoli)
-		meshGeodetico.NumCell1Ds = spigoli.size();
-		meshGeodetico.Cell1DsId.resize(meshGeodetico.NumCell1Ds);
-		meshGeodetico.Cell1DsExtrema.resize(2, meshGeodetico.NumCell1Ds);
-		int edgeIndex = 0;
-		for (const auto& edge : spigoli) {
-			meshGeodetico.Cell1DsId[edgeIndex] = edgeIndex;
-			meshGeodetico.Cell1DsExtrema(0, edgeIndex) = edge.first;
-			meshGeodetico.Cell1DsExtrema(1, edgeIndex) = edge.second;
-			++edgeIndex;
-		}
-	
-		// Cell2Ds (triangoli)
-		meshGeodetico.NumCell2Ds = triangoli.size();
-		meshGeodetico.Cell2DsId.resize(meshGeodetico.NumCell2Ds);
-		meshGeodetico.Cell2DsVertices.resize(meshGeodetico.NumCell2Ds);
-		for (size_t i = 0; i < triangoli.size(); ++i) {
-			meshGeodetico.Cell2DsId[i] = i;
-			meshGeodetico.Cell2DsVertices[i] = {triangoli[i][0], triangoli[i][1], triangoli[i][2]};
-		}
-		// Inizializza il numero di vertici per ogni faccia
-		meshGeodetico.Cell2DsNumVertices.resize(meshGeodetico.NumCell2Ds);
-		for (size_t i = 0; i < meshGeodetico.NumCell2Ds; ++i) {
-			meshGeodetico.Cell2DsNumVertices[i] = meshGeodetico.Cell2DsVertices[i].size();
-		}
-		
-		// Inizializza Cell2DsEdges con 3 elementi per triangolo
-		meshGeodetico.Cell2DsEdges.resize(meshGeodetico.NumCell2Ds);
-		for (size_t i = 0; i < meshGeodetico.NumCell2Ds; ++i) {
-			meshGeodetico.Cell2DsEdges[i].resize(3);
-		}	
-		for (size_t i = 0; i < meshGeodetico.NumCell2Ds; ++i) {
-			const auto& tri = meshGeodetico.Cell2DsVertices[i];
-			// Ogni triangolo ha 3 lati
-			vector<unsigned int> edges(3);
-		
-			// Qui devi trovare gli indici degli spigoli che corrispondono alle coppie di vertici del triangolo
-			// Gli spigoli sono in meshGeodetico.Cell1DsExtrema (2 x NumCell1Ds)
-			// Per semplicità: cerca l'indice di ogni lato nel vettore di spigoli
-		
-			for (int e = 0; e < 3; ++e) {
-				unsigned int v0 = tri[e];
-				unsigned int v1 = tri[(e + 1) % 3];
-				unsigned int minV = std::min(v0, v1);
-				unsigned int maxV = std::max(v0, v1);
-		
-				// Cerca l'indice spigolo
-				unsigned int edgeIndex = 0;
-				for (; edgeIndex < meshGeodetico.NumCell1Ds; ++edgeIndex) {
-					if (static_cast<unsigned int>(meshGeodetico.Cell1DsExtrema(0, edgeIndex)) == minV &&
-    					static_cast<unsigned int>(meshGeodetico.Cell1DsExtrema(1, edgeIndex)) == maxV) {
-						break;
-					}
-				}
-				edges[e] = edgeIndex;
-			}
-		
-			meshGeodetico.Cell2DsEdges[i] = edges;
-		}
-	
-	} 
+    vector<Vector3d> nuoviVertici;
+    // Hash map con tolleranza per vertici
+    struct Vector3dHash {
+        size_t operator()(const Vector3d& v) const {
+            auto h1 = std::hash<int>()(static_cast<int>(v.x() * 1e6));
+            auto h2 = std::hash<int>()(static_cast<int>(v.y() * 1e6));
+            auto h3 = std::hash<int>()(static_cast<int>(v.z() * 1e6));
+            return h1 ^ (h2 << 1) ^ (h3 << 2);
+        }
+    };
+    struct Vector3dEqual {
+        bool operator()(const Vector3d& a, const Vector3d& b) const {
+            return (a - b).norm() < 1e-6;
+        }
+    };
 
+    unordered_map<Vector3d, int, Vector3dHash, Vector3dEqual> verticeToIndex;
+
+    unordered_map<EdgeKey, vector<int>> edgeVertices;
+    map<tuple<int, int, int>, int> internalVertexMap;
+    vector<array<int, 3>> nuoveFacce;
+
+    // Aggiungi vertici iniziali
+    for (unsigned int i = 0; i < meshIniziale.NumCell0Ds; ++i) {
+        Vector3d p = meshIniziale.Cell0DsCoordinates.col(i);
+        nuoviVertici.push_back(p);
+        verticeToIndex[p] = i;
+    }
+
+    for (const auto& face : meshIniziale.Cell2DsVertices) {
+        int n = face.size();
+        if (n < 3) continue;
+
+        int v0 = face[0];
+
+        for (int t = 1; t < n - 1; ++t) {
+            internalVertexMap.clear();
+            int idA = v0;
+            int idB = face[t];
+            int idC = face[t + 1];
+
+            Vector3d A = meshIniziale.Cell0DsCoordinates.col(idA);
+            Vector3d B = meshIniziale.Cell0DsCoordinates.col(idB);
+            Vector3d C = meshIniziale.Cell0DsCoordinates.col(idC);
+
+            auto getEdgePoints = [&](int from, int to, const Vector3d& p1, const Vector3d& p2) {
+                EdgeKey key(from, to);
+                if (edgeVertices.find(key) == edgeVertices.end()) {
+                    vector<int> ids;
+                    for (int i = 1; i < b; ++i) {
+                        double alpha = static_cast<double>(i) / b;
+                        Vector3d p = (1 - alpha) * p1 + alpha * p2;
+                        if (verticeToIndex.find(p) == verticeToIndex.end()) {
+                            int id = nuoviVertici.size();
+                            nuoviVertici.push_back(p);
+                            verticeToIndex[p] = id;
+                            ids.push_back(id);
+                        } else {
+                            ids.push_back(verticeToIndex[p]);
+                        }
+                    }
+                    edgeVertices[key] = ids;
+                }
+                return edgeVertices[key];
+            };
+
+            auto AB = getEdgePoints(idA, idB, A, B);
+            auto BC = getEdgePoints(idB, idC, B, C);
+            auto CA = getEdgePoints(idC, idA, C, A);
+
+            vector<vector<int>> localIndex(b + 1);
+
+            for (int i = 0; i <= b; ++i) {
+                for (int j = 0; j <= b - i; ++j) {
+                    int k = b - i - j;
+                    double alpha = static_cast<double>(i) / b;
+                    double beta = static_cast<double>(j) / b;
+                    double gamma = 1.0 - alpha - beta;
+                    Vector3d p = gamma * A + alpha * B + beta * C;
+
+                    int id;
+
+                    if (i == 0 && j == 0) {
+                        id = verticeToIndex[A];
+                    } else if (i == b && j == 0) {
+                        id = verticeToIndex[B];
+                    } else if (i == 0 && j == b) {
+                        id = verticeToIndex[C];
+                    } else if (j == 0) {
+                        id = AB[i - 1];
+                    } else if (i == 0) {
+                        id = CA[j - 1];
+                    } else if (i + j == b) {
+                        id = BC[j - 1];
+                    } else {
+                        tuple<int, int, int> key = {i, j, k};
+                        if (internalVertexMap.find(key) == internalVertexMap.end()) {
+                            id = nuoviVertici.size();
+                            nuoviVertici.push_back(p);
+                            internalVertexMap[key] = id;
+                        } else {
+                            id = internalVertexMap[key];
+                        }
+                    }
+                    localIndex[i].push_back(id);
+                }
+            }
+
+            for (int i = 0; i < b; ++i) {
+                for (int j = 0; j < b - i; ++j) {
+                    int v0 = localIndex[i][j];
+                    int v1 = localIndex[i + 1][j];
+                    int v2 = localIndex[i][j + 1];
+                    nuoveFacce.push_back({v0, v1, v2});
+
+                    if (j + 1 < b - i) {
+                        int v3 = localIndex[i + 1][j + 1];
+                        nuoveFacce.push_back({v1, v3, v2});
+                    }
+                }
+            }
+        }
+    }
+
+    meshGeodetico.Cell0DsId.resize(nuoviVertici.size());
+    meshGeodetico.Cell0DsCoordinates.resize(3, nuoviVertici.size());
+    for (size_t i = 0; i < nuoviVertici.size(); ++i) {
+        meshGeodetico.Cell0DsId[i] = i;
+        meshGeodetico.Cell0DsCoordinates.col(i) = nuoviVertici[i];
+    }
+    meshGeodetico.NumCell0Ds = nuoviVertici.size();
+
+    meshGeodetico.Cell2DsId.resize(nuoveFacce.size());
+    meshGeodetico.Cell2DsVertices.resize(nuoveFacce.size());
+    for (size_t i = 0; i < nuoveFacce.size(); ++i) {
+        meshGeodetico.Cell2DsId[i] = i;
+        meshGeodetico.Cell2DsVertices[i] = vector<unsigned int>{
+            static_cast<unsigned int>(nuoveFacce[i][0]),
+            static_cast<unsigned int>(nuoveFacce[i][1]),
+            static_cast<unsigned int>(nuoveFacce[i][2])
+        };
+    }
+    meshGeodetico.NumCell2Ds = nuoveFacce.size();
+
+    unordered_map<EdgeKey, int> edgeToId;
+    vector<unsigned int> edgeStarts, edgeEnds;
+    int edgeIdCounter = 0;
+
+    for (const auto& faccia : nuoveFacce) {
+        array<int, 3> verts = faccia;
+        for (int i = 0; i < 3; ++i) {
+            int v1 = verts[i];
+            int v2 = verts[(i + 1) % 3];
+            EdgeKey e(v1, v2);
+            if (edgeToId.find(e) == edgeToId.end()) {
+                edgeToId[e] = edgeIdCounter++;
+                edgeStarts.push_back(e.v1);
+                edgeEnds.push_back(e.v2);
+            }
+        }
+    }
+
+    meshGeodetico.Cell1DsId.resize(edgeIdCounter);
+    meshGeodetico.Cell1DsExtrema.resize(2, edgeIdCounter);
+    meshGeodetico.NumCell1Ds = edgeIdCounter;
+    for (int i = 0; i < edgeIdCounter; ++i) {
+        meshGeodetico.Cell1DsId[i] = i;
+        meshGeodetico.Cell1DsExtrema(0, i) = edgeStarts[i];
+        meshGeodetico.Cell1DsExtrema(1, i) = edgeEnds[i];
+    }
+
+    meshGeodetico.Cell2DsEdges.resize(nuoveFacce.size());
+    for (size_t i = 0; i < nuoveFacce.size(); ++i) {
+        array<int, 3> verts = nuoveFacce[i];
+        vector<unsigned int> edges(3);
+        for (int j = 0; j < 3; ++j) {
+            EdgeKey e(verts[j], verts[(j + 1) % 3]);
+            edges[j] = edgeToId[e];
+        }
+        meshGeodetico.Cell2DsEdges[i] = edges;
+    }
+
+    meshGeodetico.Cell3DsId.clear();
+    meshGeodetico.Cell3DsVertices.clear();
+    meshGeodetico.Cell3DsEdges.clear();
+    meshGeodetico.Cell3DsFaces.clear();
+    meshGeodetico.NumCell3Ds = 0;
 }
+
+} // namespace PoliedriLibrary

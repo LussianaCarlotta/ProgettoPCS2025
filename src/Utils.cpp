@@ -64,78 +64,69 @@ void CreaTetraedro(PoliedriMesh& mesh)
     mesh.Cell2DsId.clear();
     mesh.Cell2DsVertices.clear();
     mesh.Cell2DsEdges.clear();
+    mesh.Cell2DsEdges.resize(mesh.NumCell2Ds);
+	mesh.Cell2DsNumVertices.resize(mesh.NumCell2Ds);
+	mesh.Cell2DsNumEdges.resize(mesh.NumCell2Ds);
 
-    // Funzione interna per ordinare i lati e ricavare i vertici
-    auto try_order = [](vector<pair<unsigned int, pair<unsigned int, unsigned int>>> edges,
-                        vector<unsigned int>& out_vertices,
-                        vector<unsigned int>& out_edges) -> bool
-    {
-        for (int flip = 0; flip < 2; ++flip) {
-            auto edges_copy = edges;
-            out_vertices.clear();
-            out_edges.clear();
 
-            auto [id0, ab0] = edges_copy[0];
-            unsigned int start = flip == 0 ? ab0.first : ab0.second;
-            unsigned int next  = flip == 0 ? ab0.second : ab0.first;
+    unsigned int idFaccia = 0;
+	for (const auto& f : facce) {
+		vector<unsigned int> originalEdges = f;
+		vector<pair<unsigned int, pair<unsigned int, unsigned int>>> edges;
 
-            out_vertices.push_back(start);
-            out_vertices.push_back(next);
-            out_edges.push_back(id0);
-            edges_copy.erase(edges_copy.begin());
+		// Prepara i lati come (id, (a, b))
+		for (auto i : originalEdges) {
+			unsigned int a = mesh.Cell1DsExtrema(0, i);
+			unsigned int b = mesh.Cell1DsExtrema(1, i);
+			edges.emplace_back(i, make_pair(a, b));
+		}
 
-            while (!edges_copy.empty()) {
-                bool found = false;
-                for (auto it = edges_copy.begin(); it != edges_copy.end(); ++it) {
-                    auto [id, ab] = *it;
-                    if (ab.first == out_vertices.back()) {
-                        out_vertices.push_back(ab.second);
-                        out_edges.push_back(id);
-                        edges_copy.erase(it);
-                        found = true;
-                        break;
-                    } else if (ab.second == out_vertices.back()) {
-                        out_vertices.push_back(ab.first);
-                        out_edges.push_back(id);
-                        edges_copy.erase(it);
-                        found = true;
-                        break;
-                    }
-                }
-                if (!found)
-                    break;
-            }
+		vector<unsigned int> orderedEdges;
+		vector<unsigned int> orderedVertices;
 
-            if (out_vertices.size() >= 3 && out_vertices.front() == out_vertices.back())
-                out_vertices.pop_back(); // chiude il ciclo
+		// Inizia dal primo lato
+		auto [id0, ab0] = edges[0];
+		orderedEdges.push_back(id0);
+		orderedVertices.push_back(ab0.first);
+		orderedVertices.push_back(ab0.second);
+		edges.erase(edges.begin());
 
-            if (edges_copy.empty())
-                return true; // successo
-        }
-        return false;
-    };
+		while (!edges.empty()) {
+			bool found = false;
+			for (auto it = edges.begin(); it != edges.end(); ++it) {
+				auto [i, ab] = *it;
+				if (ab.first == orderedVertices.back()) {
+					orderedEdges.push_back(i);
+					orderedVertices.push_back(ab.second);
+					edges.erase(it);
+					found = true;
+					break;
+				} else if (ab.second == orderedVertices.back()) {
+					orderedEdges.push_back(i);
+					orderedVertices.push_back(ab.first);
+					edges.erase(it);
+					found = true;
+					break;
+				}
+			}
+			if (!found) {
+				cerr << "Errore nell'ordinamento dei lati per la faccia " << idFaccia << endl;
+				return;
+			}
+		}
 
-    for (unsigned int i = 0; i < facce.size(); ++i) {
-        const auto& f = facce[i];
-        vector<pair<unsigned int, pair<unsigned int, unsigned int>>> edges;
-        for (auto idx : f) {
-            unsigned int a = mesh.Cell1DsExtrema(0, idx);
-            unsigned int b = mesh.Cell1DsExtrema(1, idx);
-            edges.emplace_back(idx, make_pair(a, b));
-        }
+		if (orderedVertices.front() == orderedVertices.back())
+			orderedVertices.pop_back();
 
-        vector<unsigned int> orderedVertices, orderedEdges;
-        if (!try_order(edges, orderedVertices, orderedEdges)) {
-            cerr << "Errore nell'ordinamento dei lati per la faccia " << i << endl;
-            return;
-        }
+		mesh.Cell2DsId.push_back(idFaccia);
+		mesh.Cell2DsEdges.push_back(orderedEdges);
+		mesh.Cell2DsVertices.push_back(orderedVertices);
+		idFaccia++;
+	}
 
-        mesh.Cell2DsId.push_back(i);
-        mesh.Cell2DsVertices.push_back(orderedVertices);
-        mesh.Cell2DsEdges.push_back(orderedEdges);
-    }
+	mesh.NumCell2Ds = idFaccia;
+	
 
-    mesh.NumCell2Ds = facce.size();
 
     //Celle3D
     mesh.Cell3DsId.clear();
@@ -216,6 +207,9 @@ void CreaCubo(PoliedriMesh& mesh) {
 	mesh.Cell2DsId.clear();
     mesh.Cell2DsVertices.clear();
     mesh.Cell2DsEdges.clear();
+    mesh.Cell2DsEdges.resize(mesh.NumCell2Ds);
+	mesh.Cell2DsNumVertices.resize(mesh.NumCell2Ds);
+	mesh.Cell2DsNumEdges.resize(mesh.NumCell2Ds);
 	
 	
 	
@@ -353,6 +347,9 @@ void CreaOttaedro(PoliedriMesh& mesh) {
 	mesh.Cell2DsId.clear();
 	mesh.Cell2DsVertices.clear();
 	mesh.Cell2DsEdges.clear();
+	mesh.Cell2DsEdges.resize(mesh.NumCell2Ds);
+	mesh.Cell2DsNumVertices.resize(mesh.NumCell2Ds);
+	mesh.Cell2DsNumEdges.resize(mesh.NumCell2Ds);
 	
 	
 	unsigned int idFaccia = 0;
@@ -503,6 +500,9 @@ void CreaDodecaedro(PoliedriMesh& mesh) {
 	mesh.Cell2DsId.clear();
     mesh.Cell2DsVertices.clear();
     mesh.Cell2DsEdges.clear();
+    mesh.Cell2DsEdges.resize(mesh.NumCell2Ds);
+	mesh.Cell2DsNumVertices.resize(mesh.NumCell2Ds);
+	mesh.Cell2DsNumEdges.resize(mesh.NumCell2Ds);
 	
 		unsigned int idFaccia = 0;
 
@@ -670,6 +670,9 @@ void CreaIcosaedro(PoliedriMesh& mesh){
 	mesh.Cell2DsId.clear();
     mesh.Cell2DsVertices.clear();
     mesh.Cell2DsEdges.clear();
+    mesh.Cell2DsEdges.resize(mesh.NumCell2Ds);
+	mesh.Cell2DsNumVertices.resize(mesh.NumCell2Ds);
+	mesh.Cell2DsNumEdges.resize(mesh.NumCell2Ds);
 	
 	unsigned int idFaccia = 0;
 	for (const auto& f : facce) {
@@ -888,78 +891,89 @@ bool ImportMesh(PoliedriMesh& mesh, unsigned int p, unsigned int q)
 
 	return true;
 }
-
+/*
 void CostruisciDualMesh(const PoliedriMesh& meshOriginale, PoliedriMesh& meshDuale) {
-	meshDuale = {};
+    meshDuale = {};
 
-	// Calcolo dei baricentri delle facce
-	vector<Vector3d> baricentri;
-	for (size_t i = 0; i < meshOriginale.NumCell2Ds; ++i) {
-		const auto& verticiFaccia = meshOriginale.Cell2DsVertices[i];
-		Vector3d centro = Vector3d::Zero();
-		for (auto vid : verticiFaccia) {
-			centro += meshOriginale.Cell0DsCoordinates.col(vid);
-		}
-		centro /= verticiFaccia.size();
-		centro.normalize();
-		baricentri.push_back(centro);
-	}
+    // Calcolo dei baricentri delle facce
+    std::vector<Vector3d> baricentri;
+    for (size_t i = 0; i < meshOriginale.NumCell2Ds; ++i) {
+        const auto& verticiFaccia = meshOriginale.Cell2DsVertices[i];
+        Vector3d centro = Vector3d::Zero();
+        for (auto vid : verticiFaccia) {
+            centro += meshOriginale.Cell0DsCoordinates.col(vid);
+        }
+        centro /= verticiFaccia.size();
+        centro.normalize();
+        baricentri.push_back(centro);
+    }
 
-	// Inserimento baricentri come nuovi vertici
-	meshDuale.NumCell0Ds = baricentri.size();
-	meshDuale.Cell0DsCoordinates.resize(3, baricentri.size());
-	for (unsigned int i = 0; i < baricentri.size(); ++i) {
-		meshDuale.Cell0DsId.push_back(i);
-		meshDuale.Cell0DsCoordinates.col(i) = baricentri[i];
-	}
+    // Inserimento baricentri come nuovi vertici
+    meshDuale.NumCell0Ds = baricentri.size();
+    meshDuale.Cell0DsCoordinates.resize(3, baricentri.size());
+    meshDuale.Cell0DsId.resize(baricentri.size());
+    for (unsigned int i = 0; i < baricentri.size(); ++i) {
+        meshDuale.Cell0DsId[i] = i;
+        meshDuale.Cell0DsCoordinates.col(i) = baricentri[i];
+    }
 
-	// Mappa da vertici a facce che lo contengono
-	map<unsigned int, vector<unsigned int>> verticeToFacce;
-	for (unsigned int i = 0; i < meshOriginale.NumCell2Ds; ++i) {
-		for (auto vid : meshOriginale.Cell2DsVertices[i]) {
-			verticeToFacce[vid].push_back(i);
-		}
-	}
+    // Mappa da vertici a facce che lo contengono
+    std::map<unsigned int, std::vector<unsigned int>> verticeToFacce;
+    for (unsigned int i = 0; i < meshOriginale.NumCell2Ds; ++i) {
+        for (auto vid : meshOriginale.Cell2DsVertices[i]) {
+            verticeToFacce[vid].push_back(i);
+        }
+    }
 
-	// Creazione facce del duale collegando i baricentri delle facce adiacenti a ciascun vertice
-	set<vector<unsigned int>> facceDualiSet;
-	for (const auto& [v, facce] : verticeToFacce) {
-		if (facce.size() < 3) continue;
-		vector<unsigned int> nuovaFaccia = facce;
-		sort(nuovaFaccia.begin(), nuovaFaccia.end());
-		facceDualiSet.insert(nuovaFaccia);
-	}
+    // Creazione facce del duale
+    std::set<std::vector<unsigned int>> facceDualiSet;
+    for (const auto& [v, facce] : verticeToFacce) {
+        if (facce.size() < 3) continue;
+        std::vector<unsigned int> nuovaFaccia = facce;
+        std::sort(nuovaFaccia.begin(), nuovaFaccia.end());
+        facceDualiSet.insert(nuovaFaccia);
+    }
 
-	// Inserimento facce nella nuova mesh
-	meshDuale.NumCell2Ds = facceDualiSet.size();
-	unsigned int fId = 0;
-	for (const auto& faccia : facceDualiSet) {
-		meshDuale.Cell2DsId.push_back(fId++);
-		meshDuale.Cell2DsNumVertices.push_back(faccia.size());
-		meshDuale.Cell2DsVertices.push_back(faccia);
-	}
+    // Inserimento facce nella nuova mesh
+    meshDuale.NumCell2Ds = facceDualiSet.size();
+    meshDuale.Cell2DsId.resize(meshDuale.NumCell2Ds);
+    meshDuale.Cell2DsVertices.resize(meshDuale.NumCell2Ds);
+    meshDuale.Cell2DsNumVertices.resize(meshDuale.NumCell2Ds);
+    meshDuale.Cell2DsEdges.resize(meshDuale.NumCell2Ds);
+    meshDuale.Cell2DsNumEdges.resize(meshDuale.NumCell2Ds);
 
-	// Generazione spigoli
-	set<pair<unsigned int, unsigned int>> spigoli;
-	for (const auto& faccia : meshDuale.Cell2DsVertices) {
-		for (size_t i = 0; i < faccia.size(); ++i) {
-			unsigned int a = faccia[i];
-			unsigned int b = faccia[(i + 1) % faccia.size()];
-			spigoli.insert({min(a, b), max(a, b)});
-		}
-	}
+    unsigned int fId = 0;
+    for (const auto& faccia : facceDualiSet) {
+        meshDuale.Cell2DsId[fId] = fId;
+        meshDuale.Cell2DsVertices[fId] = faccia;
+        meshDuale.Cell2DsNumVertices[fId] = faccia.size();
+        ++fId;
+    }
 
-	meshDuale.NumCell1Ds = spigoli.size();
-	meshDuale.Cell1DsExtrema.resize(2, spigoli.size());
-	unsigned int eId = 0;
-	for (const auto& [a, b] : spigoli) {
-		meshDuale.Cell1DsId.push_back(eId);
-		meshDuale.Cell1DsExtrema(0, eId) = a;
-		meshDuale.Cell1DsExtrema(1, eId) = b;
-		++eId;
-	}
+    // Generazione spigoli
+    std::set<std::pair<unsigned int, unsigned int>> spigoli;
+    for (const auto& faccia : meshDuale.Cell2DsVertices) {
+        for (size_t i = 0; i < faccia.size(); ++i) {
+            unsigned int a = faccia[i];
+            unsigned int b = faccia[(i + 1) % faccia.size()];
+            spigoli.insert({std::min(a, b), std::max(a, b)});
+        }
+    }
+
+    meshDuale.NumCell1Ds = spigoli.size();
+    meshDuale.Cell1DsExtrema.resize(2, spigoli.size());
+    meshDuale.Cell1DsId.resize(spigoli.size());
+
+    unsigned int eId = 0;
+    for (const auto& [a, b] : spigoli) {
+        meshDuale.Cell1DsId[eId] = eId;
+        meshDuale.Cell1DsExtrema(0, eId) = a;
+        meshDuale.Cell1DsExtrema(1, eId) = b;
+        ++eId;
+    }
 }
 
+*/
 bool ScritturaCelle(const PoliedriMesh& mesh, const std::string& nomeBase) {
     
     if (mesh.NumCell0Ds != mesh.Cell0DsId.size() ||

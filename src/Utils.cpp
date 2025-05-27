@@ -186,9 +186,9 @@ void CreaCubo(PoliedriMesh& mesh) {
 	
 	//Celle1DS
 	vector<pair<unsigned int, unsigned int>> lati = {
-		{0,1},{1,2},{2,3},{3,0},
-		{4,5},{5,6},{6,7},{7,4},
-		{0,4},{1,5},{2,6},{3,7}
+		{0,1},{1,3},{3,2},{2,0},
+		{4,5},{5,7},{7,6},{6,4},
+		{0,4},{1,5},{3,7},{2,6}
 	};
 	
 	mesh.Cell1DsId.clear();
@@ -209,8 +209,8 @@ void CreaCubo(PoliedriMesh& mesh) {
 		{4, 5, 6, 7},
 		{0, 9, 4, 8},
 		{1, 10, 5, 9},
-		{2, 11, 6, 10},
-		{3, 8, 7, 11}
+		{2, 10, 6, 11}, 
+		{11, 7, 8, 3}
 	};
 	
 	mesh.Cell2DsId.clear();
@@ -218,76 +218,63 @@ void CreaCubo(PoliedriMesh& mesh) {
     mesh.Cell2DsEdges.clear();
 	
 	
-	// Funzione interna per ordinare i lati e ricavare i vertici
-    auto try_order = [](vector<pair<unsigned int, pair<unsigned int, unsigned int>>> edges,
-                        vector<unsigned int>& out_vertices,
-                        vector<unsigned int>& out_edges) -> bool
-    {
-        for (int flip = 0; flip < 2; ++flip) {
-            auto edges_copy = edges;
-            out_vertices.clear();
-            out_edges.clear();
+	
+	unsigned int idFaccia = 0;
+	for (const auto& f : facce) {
+		vector<unsigned int> originalEdges = f;
+		vector<pair<unsigned int, pair<unsigned int, unsigned int>>> edges;
 
-            auto [id0, ab0] = edges_copy[0];
-            unsigned int start = flip == 0 ? ab0.first : ab0.second;
-            unsigned int next  = flip == 0 ? ab0.second : ab0.first;
+		// Prepara i lati come (id, (a, b))
+		for (auto i : originalEdges) {
+			unsigned int a = mesh.Cell1DsExtrema(0, i);
+			unsigned int b = mesh.Cell1DsExtrema(1, i);
+			edges.emplace_back(i, make_pair(a, b));
+		}
 
-            out_vertices.push_back(start);
-            out_vertices.push_back(next);
-            out_edges.push_back(id0);
-            edges_copy.erase(edges_copy.begin());
+		vector<unsigned int> orderedEdges;
+		vector<unsigned int> orderedVertices;
 
-            while (!edges_copy.empty()) {
-                bool found = false;
-                for (auto it = edges_copy.begin(); it != edges_copy.end(); ++it) {
-                    auto [id, ab] = *it;
-                    if (ab.first == out_vertices.back()) {
-                        out_vertices.push_back(ab.second);
-                        out_edges.push_back(id);
-                        edges_copy.erase(it);
-                        found = true;
-                        break;
-                    } else if (ab.second == out_vertices.back()) {
-                        out_vertices.push_back(ab.first);
-                        out_edges.push_back(id);
-                        edges_copy.erase(it);
-                        found = true;
-                        break;
-                    }
-                }
-                if (!found)
-                    break;
-            }
+		// Inizia dal primo lato
+		auto [id0, ab0] = edges[0];
+		orderedEdges.push_back(id0);
+		orderedVertices.push_back(ab0.first);
+		orderedVertices.push_back(ab0.second);
+		edges.erase(edges.begin());
 
-            if (out_vertices.size() >= 3 && out_vertices.front() == out_vertices.back())
-                out_vertices.pop_back(); // chiude il ciclo
+		while (!edges.empty()) {
+			bool found = false;
+			for (auto it = edges.begin(); it != edges.end(); ++it) {
+				auto [i, ab] = *it;
+				if (ab.first == orderedVertices.back()) {
+					orderedEdges.push_back(i);
+					orderedVertices.push_back(ab.second);
+					edges.erase(it);
+					found = true;
+					break;
+				} else if (ab.second == orderedVertices.back()) {
+					orderedEdges.push_back(i);
+					orderedVertices.push_back(ab.first);
+					edges.erase(it);
+					found = true;
+					break;
+				}
+			}
+			if (!found) {
+				cerr << "Errore nell'ordinamento dei lati per la faccia " << idFaccia << endl;
+				return;
+			}
+		}
 
-            if (edges_copy.empty())
-                return true; // successo
-        }
-        return false;
-    };
+		if (orderedVertices.front() == orderedVertices.back())
+			orderedVertices.pop_back();
 
-    for (unsigned int i = 0; i < facce.size(); ++i) {
-        const auto& f = facce[i];
-        vector<pair<unsigned int, pair<unsigned int, unsigned int>>> edges;
-        for (auto idx : f) {
-            unsigned int a = mesh.Cell1DsExtrema(0, idx);
-            unsigned int b = mesh.Cell1DsExtrema(1, idx);
-            edges.emplace_back(idx, make_pair(a, b));
-        }
+		mesh.Cell2DsId.push_back(idFaccia);
+		mesh.Cell2DsEdges.push_back(orderedEdges);
+		mesh.Cell2DsVertices.push_back(orderedVertices);
+		idFaccia++;
+	}
 
-        vector<unsigned int> orderedVertices, orderedEdges;
-        if (!try_order(edges, orderedVertices, orderedEdges)) {
-            cerr << "Errore nell'ordinamento dei lati per la faccia " << i << endl;
-            return;
-        }
-
-        mesh.Cell2DsId.push_back(i);
-        mesh.Cell2DsVertices.push_back(orderedVertices);
-        mesh.Cell2DsEdges.push_back(orderedEdges);
-    }
-	mesh.NumCell2Ds = facce.size();
+	mesh.NumCell2Ds = idFaccia;
 	
 	//Celle3Ds
 	mesh.Cell3DsId.clear();
@@ -368,76 +355,62 @@ void CreaOttaedro(PoliedriMesh& mesh) {
 	mesh.Cell2DsEdges.clear();
 	
 	
-	// Funzione interna per ordinare i lati e ricavare i vertici
-    auto try_order = [](vector<pair<unsigned int, pair<unsigned int, unsigned int>>> edges,
-                        vector<unsigned int>& out_vertices,
-                        vector<unsigned int>& out_edges) -> bool
-    {
-        for (int flip = 0; flip < 2; ++flip) {
-            auto edges_copy = edges;
-            out_vertices.clear();
-            out_edges.clear();
+	unsigned int idFaccia = 0;
+	for (const auto& f : facce) {
+		vector<unsigned int> originalEdges = f;
+		vector<pair<unsigned int, pair<unsigned int, unsigned int>>> edges;
 
-            auto [id0, ab0] = edges_copy[0];
-            unsigned int start = flip == 0 ? ab0.first : ab0.second;
-            unsigned int next  = flip == 0 ? ab0.second : ab0.first;
+		// Prepara i lati come (id, (a, b))
+		for (auto i : originalEdges) {
+			unsigned int a = mesh.Cell1DsExtrema(0, i);
+			unsigned int b = mesh.Cell1DsExtrema(1, i);
+			edges.emplace_back(i, make_pair(a, b));
+		}
 
-            out_vertices.push_back(start);
-            out_vertices.push_back(next);
-            out_edges.push_back(id0);
-            edges_copy.erase(edges_copy.begin());
+		vector<unsigned int> orderedEdges;
+		vector<unsigned int> orderedVertices;
 
-            while (!edges_copy.empty()) {
-                bool found = false;
-                for (auto it = edges_copy.begin(); it != edges_copy.end(); ++it) {
-                    auto [id, ab] = *it;
-                    if (ab.first == out_vertices.back()) {
-                        out_vertices.push_back(ab.second);
-                        out_edges.push_back(id);
-                        edges_copy.erase(it);
-                        found = true;
-                        break;
-                    } else if (ab.second == out_vertices.back()) {
-                        out_vertices.push_back(ab.first);
-                        out_edges.push_back(id);
-                        edges_copy.erase(it);
-                        found = true;
-                        break;
-                    }
-                }
-                if (!found)
-                    break;
-            }
+		// Inizia dal primo lato
+		auto [id0, ab0] = edges[0];
+		orderedEdges.push_back(id0);
+		orderedVertices.push_back(ab0.first);
+		orderedVertices.push_back(ab0.second);
+		edges.erase(edges.begin());
 
-            if (out_vertices.size() >= 3 && out_vertices.front() == out_vertices.back())
-                out_vertices.pop_back(); // chiude il ciclo
+		while (!edges.empty()) {
+			bool found = false;
+			for (auto it = edges.begin(); it != edges.end(); ++it) {
+				auto [i, ab] = *it;
+				if (ab.first == orderedVertices.back()) {
+					orderedEdges.push_back(i);
+					orderedVertices.push_back(ab.second);
+					edges.erase(it);
+					found = true;
+					break;
+				} else if (ab.second == orderedVertices.back()) {
+					orderedEdges.push_back(i);
+					orderedVertices.push_back(ab.first);
+					edges.erase(it);
+					found = true;
+					break;
+				}
+			}
+			if (!found) {
+				cerr << "Errore nell'ordinamento dei lati per la faccia " << idFaccia << endl;
+				return;
+			}
+		}
 
-            if (edges_copy.empty())
-                return true; // successo
-        }
-        return false;
-    };
+		if (orderedVertices.front() == orderedVertices.back())
+			orderedVertices.pop_back();
 
-    for (unsigned int i = 0; i < facce.size(); ++i) {
-        const auto& f = facce[i];
-        vector<pair<unsigned int, pair<unsigned int, unsigned int>>> edges;
-        for (auto idx : f) {
-            unsigned int a = mesh.Cell1DsExtrema(0, idx);
-            unsigned int b = mesh.Cell1DsExtrema(1, idx);
-            edges.emplace_back(idx, make_pair(a, b));
-        }
+		mesh.Cell2DsId.push_back(idFaccia);
+		mesh.Cell2DsEdges.push_back(orderedEdges);
+		mesh.Cell2DsVertices.push_back(orderedVertices);
+		idFaccia++;
+	}
 
-        vector<unsigned int> orderedVertices, orderedEdges;
-        if (!try_order(edges, orderedVertices, orderedEdges)) {
-            cerr << "Errore nell'ordinamento dei lati per la faccia " << i << endl;
-            return;
-        }
-
-        mesh.Cell2DsId.push_back(i);
-        mesh.Cell2DsVertices.push_back(orderedVertices);
-        mesh.Cell2DsEdges.push_back(orderedEdges);
-    }
-	mesh.NumCell2Ds = facce.size();
+	mesh.NumCell2Ds = idFaccia;
 	
 	//Celle3Ds
 	mesh.Cell3DsId.clear();
@@ -530,78 +503,69 @@ void CreaDodecaedro(PoliedriMesh& mesh) {
 	mesh.Cell2DsId.clear();
     mesh.Cell2DsVertices.clear();
     mesh.Cell2DsEdges.clear();
-
-    // Funzione interna per ordinare i lati e ricavare i vertici
-    auto try_order = [](vector<pair<unsigned int, pair<unsigned int, unsigned int>>> edges,
-                        vector<unsigned int>& out_vertices,
-                        vector<unsigned int>& out_edges) -> bool
-    {
-        for (int flip = 0; flip < 2; ++flip) {
-            auto edges_copy = edges;
-            out_vertices.clear();
-            out_edges.clear();
-
-            auto [id0, ab0] = edges_copy[0];
-            unsigned int start = flip == 0 ? ab0.first : ab0.second;
-            unsigned int next  = flip == 0 ? ab0.second : ab0.first;
-
-            out_vertices.push_back(start);
-            out_vertices.push_back(next);
-            out_edges.push_back(id0);
-            edges_copy.erase(edges_copy.begin());
-
-            while (!edges_copy.empty()) {
-                bool found = false;
-                for (auto it = edges_copy.begin(); it != edges_copy.end(); ++it) {
-                    auto [id, ab] = *it;
-                    if (ab.first == out_vertices.back()) {
-                        out_vertices.push_back(ab.second);
-                        out_edges.push_back(id);
-                        edges_copy.erase(it);
-                        found = true;
-                        break;
-                    } else if (ab.second == out_vertices.back()) {
-                        out_vertices.push_back(ab.first);
-                        out_edges.push_back(id);
-                        edges_copy.erase(it);
-                        found = true;
-                        break;
-                    }
-                }
-                if (!found)
-                    break;
-            }
-
-            if (out_vertices.size() >= 3 && out_vertices.front() == out_vertices.back())
-                out_vertices.pop_back(); // chiude il ciclo
-
-            if (edges_copy.empty())
-                return true; // successo
-        }
-        return false;
-    };
-
-    for (unsigned int i = 0; i < facce.size(); ++i) {
-        const auto& f = facce[i];
-        vector<pair<unsigned int, pair<unsigned int, unsigned int>>> edges;
-        for (auto idx : f) {
-            unsigned int a = mesh.Cell1DsExtrema(0, idx);
-            unsigned int b = mesh.Cell1DsExtrema(1, idx);
-            edges.emplace_back(idx, make_pair(a, b));
-        }
-
-        vector<unsigned int> orderedVertices, orderedEdges;
-        if (!try_order(edges, orderedVertices, orderedEdges)) {
-            cerr << "Errore nell'ordinamento dei lati per la faccia " << i << endl;
-            return;
-        }
-
-        mesh.Cell2DsId.push_back(i);
-        mesh.Cell2DsVertices.push_back(orderedVertices);
-        mesh.Cell2DsEdges.push_back(orderedEdges);
-    }
-	mesh.NumCell2Ds = facce.size();
 	
+		unsigned int idFaccia = 0;
+
+		for (const auto& edgeIDs : facce) {
+		std::vector<unsigned int> orderedVertices;
+		std::vector<unsigned int> orderedEdges = edgeIDs;
+
+		// Mappa: edge ID → (from, to)
+		std::vector<std::pair<unsigned int, unsigned int>> edges;
+		for (unsigned int eid : edgeIDs) {
+			unsigned int from = mesh.Cell1DsExtrema(0, eid);
+			unsigned int to   = mesh.Cell1DsExtrema(1, eid);
+			edges.emplace_back(from, to);
+		}
+
+		// Inizializza con il primo lato
+		unsigned int current = edges[0].second;
+		orderedVertices.push_back(edges[0].first);
+		orderedVertices.push_back(current);
+		edges.erase(edges.begin());
+
+		// Ricostruisci cammino
+		while (!edges.empty()) {
+			bool found = false;
+			for (auto it = edges.begin(); it != edges.end(); ++it) {
+				auto [from, to] = *it;
+				if (from == current) {
+					orderedVertices.push_back(to);
+					current = to;
+					edges.erase(it);
+					found = true;
+					break;
+				} else if (to == current) {
+					orderedVertices.push_back(from);
+					current = from;
+					edges.erase(it);
+					found = true;
+					break;
+				}
+			}
+			if (!found) {
+				std::cerr << "Errore: non riesco a chiudere la faccia " << idFaccia << std::endl;
+				return;
+			}
+		}
+
+		// Verifica che la faccia sia chiusa
+		if (orderedVertices.front() != orderedVertices.back()) {
+			std::cerr << "Errore: faccia " << idFaccia << " non chiusa correttamente\n";
+			return;
+		}
+
+		// Rimuovi l'ultimo duplicato se chiusura esplicita
+		orderedVertices.pop_back();
+
+		// Salva nella mesh
+		mesh.Cell2DsId.push_back(idFaccia);
+		mesh.Cell2DsEdges.push_back(orderedEdges);
+		mesh.Cell2DsVertices.push_back(orderedVertices);
+		++idFaccia;
+		}
+
+		mesh.NumCell2Ds = idFaccia;
 	
 	//Celle3Ds
 	mesh.Cell3DsId.clear();
@@ -707,76 +671,62 @@ void CreaIcosaedro(PoliedriMesh& mesh){
     mesh.Cell2DsVertices.clear();
     mesh.Cell2DsEdges.clear();
 	
-	// Funzione interna per ordinare i lati e ricavare i vertici
-    auto try_order = [](vector<pair<unsigned int, pair<unsigned int, unsigned int>>> edges,
-                        vector<unsigned int>& out_vertices,
-                        vector<unsigned int>& out_edges) -> bool
-    {
-        for (int flip = 0; flip < 2; ++flip) {
-            auto edges_copy = edges;
-            out_vertices.clear();
-            out_edges.clear();
+	unsigned int idFaccia = 0;
+	for (const auto& f : facce) {
+		vector<unsigned int> originalEdges = f;
+		vector<pair<unsigned int, pair<unsigned int, unsigned int>>> edges;
 
-            auto [id0, ab0] = edges_copy[0];
-            unsigned int start = flip == 0 ? ab0.first : ab0.second;
-            unsigned int next  = flip == 0 ? ab0.second : ab0.first;
+		// Prepara i lati come (id, (a, b))
+		for (auto i : originalEdges) {
+			unsigned int a = mesh.Cell1DsExtrema(0, i);
+			unsigned int b = mesh.Cell1DsExtrema(1, i);
+			edges.emplace_back(i, make_pair(a, b));
+		}
 
-            out_vertices.push_back(start);
-            out_vertices.push_back(next);
-            out_edges.push_back(id0);
-            edges_copy.erase(edges_copy.begin());
+		vector<unsigned int> orderedEdges;
+		vector<unsigned int> orderedVertices;
 
-            while (!edges_copy.empty()) {
-                bool found = false;
-                for (auto it = edges_copy.begin(); it != edges_copy.end(); ++it) {
-                    auto [id, ab] = *it;
-                    if (ab.first == out_vertices.back()) {
-                        out_vertices.push_back(ab.second);
-                        out_edges.push_back(id);
-                        edges_copy.erase(it);
-                        found = true;
-                        break;
-                    } else if (ab.second == out_vertices.back()) {
-                        out_vertices.push_back(ab.first);
-                        out_edges.push_back(id);
-                        edges_copy.erase(it);
-                        found = true;
-                        break;
-                    }
-                }
-                if (!found)
-                    break;
-            }
+		// Inizia dal primo lato
+		auto [id0, ab0] = edges[0];
+		orderedEdges.push_back(id0);
+		orderedVertices.push_back(ab0.first);
+		orderedVertices.push_back(ab0.second);
+		edges.erase(edges.begin());
 
-            if (out_vertices.size() >= 3 && out_vertices.front() == out_vertices.back())
-                out_vertices.pop_back(); // chiude il ciclo
+		while (!edges.empty()) {
+			bool found = false;
+			for (auto it = edges.begin(); it != edges.end(); ++it) {
+				auto [i, ab] = *it;
+				if (ab.first == orderedVertices.back()) {
+					orderedEdges.push_back(i);
+					orderedVertices.push_back(ab.second);
+					edges.erase(it);
+					found = true;
+					break;
+				} else if (ab.second == orderedVertices.back()) {
+					orderedEdges.push_back(i);
+					orderedVertices.push_back(ab.first);
+					edges.erase(it);
+					found = true;
+					break;
+				}
+			}
+			if (!found) {
+				cerr << "Errore nell'ordinamento dei lati per la faccia " << idFaccia << endl;
+				return;
+			}
+		}
 
-            if (edges_copy.empty())
-                return true; // successo
-        }
-        return false;
-    };
+		if (orderedVertices.front() == orderedVertices.back())
+			orderedVertices.pop_back();
 
-    for (unsigned int i = 0; i < facce.size(); ++i) {
-        const auto& f = facce[i];
-        vector<pair<unsigned int, pair<unsigned int, unsigned int>>> edges;
-        for (auto idx : f) {
-            unsigned int a = mesh.Cell1DsExtrema(0, idx);
-            unsigned int b = mesh.Cell1DsExtrema(1, idx);
-            edges.emplace_back(idx, make_pair(a, b));
-        }
+		mesh.Cell2DsId.push_back(idFaccia);
+		mesh.Cell2DsEdges.push_back(orderedEdges);
+		mesh.Cell2DsVertices.push_back(orderedVertices);
+		idFaccia++;
+	}
 
-        vector<unsigned int> orderedVertices, orderedEdges;
-        if (!try_order(edges, orderedVertices, orderedEdges)) {
-            cerr << "Errore nell'ordinamento dei lati per la faccia " << i << endl;
-            return;
-        }
-
-        mesh.Cell2DsId.push_back(i);
-        mesh.Cell2DsVertices.push_back(orderedVertices);
-        mesh.Cell2DsEdges.push_back(orderedEdges);
-    }
-	mesh.NumCell2Ds = facce.size();
+	mesh.NumCell2Ds = idFaccia;
 	
 	
 	//Celle3Ds
@@ -915,8 +865,8 @@ bool ScritturaCelle(PoliedriMesh& mesh, unsigned int p, unsigned int q) {
 	
 	file3.close();
 	return true;
-
-}
+	
+	}
 
 bool ImportMesh(PoliedriMesh& mesh, unsigned int p, unsigned int q)
 {
@@ -939,7 +889,130 @@ bool ImportMesh(PoliedriMesh& mesh, unsigned int p, unsigned int q)
 	return true;
 }
 
+void CostruisciDualMesh(const PoliedriMesh& meshOriginale, PoliedriMesh& meshDuale) {
+	meshDuale = {};
 
+	// Calcolo dei baricentri delle facce
+	vector<Vector3d> baricentri;
+	for (size_t i = 0; i < meshOriginale.NumCell2Ds; ++i) {
+		const auto& verticiFaccia = meshOriginale.Cell2DsVertices[i];
+		Vector3d centro = Vector3d::Zero();
+		for (auto vid : verticiFaccia) {
+			centro += meshOriginale.Cell0DsCoordinates.col(vid);
+		}
+		centro /= verticiFaccia.size();
+		centro.normalize();
+		baricentri.push_back(centro);
+	}
+
+	// Inserimento baricentri come nuovi vertici
+	meshDuale.NumCell0Ds = baricentri.size();
+	meshDuale.Cell0DsCoordinates.resize(3, baricentri.size());
+	for (unsigned int i = 0; i < baricentri.size(); ++i) {
+		meshDuale.Cell0DsId.push_back(i);
+		meshDuale.Cell0DsCoordinates.col(i) = baricentri[i];
+	}
+
+	// Mappa da vertici a facce che lo contengono
+	map<unsigned int, vector<unsigned int>> verticeToFacce;
+	for (unsigned int i = 0; i < meshOriginale.NumCell2Ds; ++i) {
+		for (auto vid : meshOriginale.Cell2DsVertices[i]) {
+			verticeToFacce[vid].push_back(i);
+		}
+	}
+
+	// Creazione facce del duale collegando i baricentri delle facce adiacenti a ciascun vertice
+	set<vector<unsigned int>> facceDualiSet;
+	for (const auto& [v, facce] : verticeToFacce) {
+		if (facce.size() < 3) continue;
+		vector<unsigned int> nuovaFaccia = facce;
+		sort(nuovaFaccia.begin(), nuovaFaccia.end());
+		facceDualiSet.insert(nuovaFaccia);
+	}
+
+	// Inserimento facce nella nuova mesh
+	meshDuale.NumCell2Ds = facceDualiSet.size();
+	unsigned int fId = 0;
+	for (const auto& faccia : facceDualiSet) {
+		meshDuale.Cell2DsId.push_back(fId++);
+		meshDuale.Cell2DsNumVertices.push_back(faccia.size());
+		meshDuale.Cell2DsVertices.push_back(faccia);
+	}
+
+	// Generazione spigoli
+	set<pair<unsigned int, unsigned int>> spigoli;
+	for (const auto& faccia : meshDuale.Cell2DsVertices) {
+		for (size_t i = 0; i < faccia.size(); ++i) {
+			unsigned int a = faccia[i];
+			unsigned int b = faccia[(i + 1) % faccia.size()];
+			spigoli.insert({min(a, b), max(a, b)});
+		}
+	}
+
+	meshDuale.NumCell1Ds = spigoli.size();
+	meshDuale.Cell1DsExtrema.resize(2, spigoli.size());
+	unsigned int eId = 0;
+	for (const auto& [a, b] : spigoli) {
+		meshDuale.Cell1DsId.push_back(eId);
+		meshDuale.Cell1DsExtrema(0, eId) = a;
+		meshDuale.Cell1DsExtrema(1, eId) = b;
+		++eId;
+	}
+}
+
+bool ScritturaCelle(const PoliedriMesh& mesh, const std::string& nomeBase) {
+    
+    if (mesh.NumCell0Ds != mesh.Cell0DsId.size() ||
+        mesh.NumCell0Ds != mesh.Cell0DsCoordinates.cols()) {
+        cerr << "Errore: dati dei vertici inconsistenti\n";
+        return false;
+    }
+
+    ofstream file0(nomeBase + "_Cell0Ds.txt");
+    ofstream file1(nomeBase + "_Cell1Ds.txt");
+    ofstream file2(nomeBase + "_Cell2Ds.txt");
+    ofstream file3(nomeBase + "_Cell3Ds.txt");
+
+    if (!file0 || !file1 || !file2 || !file3) return false;
+
+    file0 << "# ID x y z\n";
+    for (size_t i = 0; i < mesh.NumCell0Ds; ++i) {
+        file0 << mesh.Cell0DsId[i] << " "
+              << mesh.Cell0DsCoordinates(0, i) << " "
+              << mesh.Cell0DsCoordinates(1, i) << " "
+              << mesh.Cell0DsCoordinates(2, i) << "\n";
+    }
+
+    file1 << "# ID OriginId EndId\n";
+    for (size_t i = 0; i < mesh.NumCell1Ds; ++i) {
+        file1 << mesh.Cell1DsId[i] << " "
+              << mesh.Cell1DsExtrema(0, i) << " "
+              << mesh.Cell1DsExtrema(1, i) << "\n";
+    }
+
+    file2 << "# ID NumVertices NumEdges VertexIds EdgeIds\n";
+    for (size_t i = 0; i < mesh.NumCell2Ds; ++i) {
+        file2 << mesh.Cell2DsId[i] << " "
+              << mesh.Cell2DsNumVertices[i] << " "
+              << mesh.Cell2DsEdges[i].size() << " ";
+
+        for (auto v : mesh.Cell2DsVertices[i]) file2 << v << " ";
+        for (auto e : mesh.Cell2DsEdges[i]) file2 << e << " ";
+        file2 << "\n";
+    }
+
+    file3 << "# ID NumVertices NumEdges NumFaces VertexIds EdgeIds FaceIds\n";
+    file3 << "0 "
+          << mesh.NumCell0Ds << " "
+          << mesh.NumCell1Ds << " "
+          << mesh.NumCell2Ds << " ";
+    for (auto id : mesh.Cell0DsId) file3 << id << " ";
+    for (auto id : mesh.Cell1DsId) file3 << id << " ";
+    for (auto id : mesh.Cell2DsId) file3 << id << " ";
+    file3 << "\n";
+
+    return true;
+}
 //void TriangolaFacceClasseI(const PoliedriMesh& meshIniziale, unsigned int b, PoliedriMesh& meshGeodetico);
 
 }

@@ -32,14 +32,10 @@ namespace PoliedriLibrary
 	//bool Cell3Ds(PoliedriMesh& mesh);
 
 
-	bool ScritturaCelle(PoliedriMesh& mesh, unsigned int p, unsigned int q);
+	bool ScritturaCelle(const PoliedriMesh& mesh, const std::string& nomeBase);
 	
 	void Export(PoliedriMesh& mesh);
 	
-	
-	
-	
-	// verifichiamo la (4) del pfd
-	//bool VerificaFacceSemplice(const PoliedriLibrary::PoliedriMesh& mesh);
+	void CostruisciDualMesh(const PoliedriMesh& meshOriginale, PoliedriMesh& meshDuale);
 
 }

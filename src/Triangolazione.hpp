@@ -1,7 +1,8 @@
 #pragma once
-#include "Utils.hpp" 
+#include "Utils.hpp"
 
 namespace PoliedriLibrary {
-	
-    void TriangolaFacceClasseI(int b, const PoliedriMesh& meshIniziale, PoliedriMesh& meshGeodetico);
+
+    void TriangolaFacceClasseI(int b, int c, const PoliedriMesh& meshIniziale, PoliedriMesh& meshGeodetico);
+
 }

@@ -3,6 +3,8 @@
 
 namespace PoliedriLibrary {
 
-    void TriangolaFacceClasseI(int b, int c, const PoliedriMesh& meshIniziale, PoliedriMesh& meshGeodetico);
+	void TriangolaFacceClasseI(const PoliedriMesh &meshIniziale, PoliedriMesh &meshRisultato, unsigned int livelloSuddivisione);
+
+	unsigned int TrovaSpigolo(map<pair<unsigned int, unsigned int>, unsigned int> &mappaSpigoli, PoliedriMesh &mesh, unsigned int start, unsigned int end);
 
 }

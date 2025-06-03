@@ -636,4 +636,21 @@ bool ImportMesh(PoliedriMesh& mesh, unsigned int p, unsigned int q)
 	return true;
 }
 
+unsigned int TrovaSpigolo(map<pair<unsigned int, unsigned int>, unsigned int> &mappaSpigoli, PoliedriMesh &mesh, unsigned int start, unsigned int end) {
+    if (start > end) swap(start, end);
+    auto chiave = make_pair(start, end);
+
+    auto iter = mappaSpigoli.find(chiave);
+    if (iter != mappaSpigoli.end()) return iter->second;
+
+    unsigned int nuovoIndice = mesh.Cell1DsExtrema.cols();
+    mesh.Cell1DsExtrema.conservativeResize(2, nuovoIndice + 1);
+    mesh.Cell1DsExtrema(0, nuovoIndice) = start;
+    mesh.Cell1DsExtrema(1, nuovoIndice) = end;
+
+    mesh.Cell1DsId.push_back(nuovoIndice);
+    mappaSpigoli[chiave] = nuovoIndice;
+    return nuovoIndice;
+}
+
 }

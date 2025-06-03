@@ -65,8 +65,6 @@ void CostruisciDualMesh(const PoliedriMesh& meshTriangolata, PoliedriMesh& meshD
 
     // 3. Costruzione mappa da spigoli → facce
     auto edgeToFaces = buildEdgeToFacesMap(meshTriangolata);
-	
-	
 
     // 4. Per ogni spigolo condiviso da due facce, aggiungi un lato tra i rispettivi baricentri
     set<pair<unsigned int, unsigned int>> archiInseriti;

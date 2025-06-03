@@ -29,7 +29,7 @@ int main() {
 	}
 	
 	bool richiedeDualizzazioneFinale; 
-	if (p == 3 && q > 3) {
+	if (p == 3 && q >= 3) {
 		richiedeDualizzazioneFinale = false;
 	} else {
 		swap(p, q);
@@ -42,27 +42,34 @@ int main() {
     }
 	
 	
-	// Triangolazione geodetica
+	// Triangolazione 
     PoliedriMesh meshTriangolata;
-    TriangolaFacceClasseI(meshPlatonico, meshTriangolata, b + c);
+	if (b == c && b > 0) {
+		// Classe II: b = c
+		TriangolaFacceClasseII(meshPlatonico, meshTriangolata, b);
+	} else if ((b == 0 && c > 0) || (c == 0 && b > 0)) {
+		// Classe I: uno dei due è 0
+		TriangolaFacceClasseI(meshPlatonico, meshTriangolata, b + c);
+	} else {
+		cerr << "Errore: combinazione b != c non supportata" << endl;
+		return 1;
+	}
 
 
-
-    // Calcola il duale della mesh triangolata (Goldberg)
+    // Duale della mesh triangolata (Goldberg)
     if (richiedeDualizzazioneFinale == true) {
         PoliedriMesh meshDuale;
         CostruisciDualMesh(meshTriangolata, meshDuale);
         meshTriangolata = meshDuale;
-		
     }
 	ProiettaSuSfera(meshTriangolata);
 	
 	
 	string nomeBaseOutput;
 	if (richiedeDualizzazioneFinale == true) {
-		nomeBaseOutput = "Goldberg";
+		nomeBaseOutput = "Goldberg"; // se è stato costruito il duale,
 	} else {
-		nomeBaseOutput = "Geodetico";
+		nomeBaseOutput = "Geodetico"; //se la triangolazione non ha richiesto il duale
 	}
 
 	if (!ScritturaCelle(meshTriangolata, nomeBaseOutput)) {

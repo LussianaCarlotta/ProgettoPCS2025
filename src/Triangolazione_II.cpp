@@ -1,14 +1,15 @@
 #include "Triangolazione.hpp"
+#include "Utils.hpp"
 #include <Eigen/Dense>
 #include <vector>
-#include <limits>
 #include <map>
-#include <utility>
 #include <set>
+#include <utility>
 #include <iostream>
+#include <cmath>
 
-using namespace Eigen;
 using namespace std;
+using namespace Eigen;
 
 namespace PoliedriLibrary {
 
@@ -22,11 +23,15 @@ struct CompareVector3d {
     }
 };
 
-void TriangolaFacceClasseI(const PoliedriMesh &meshIniziale, PoliedriMesh &meshRisultato, unsigned int livelloSuddivisione) {
-    if (livelloSuddivisione == 0) {
-        cerr << "Errore: livelloSuddivisione = 0. Impossibile triangolare." << endl;
+// Triangolazione Classe II: suddivide ogni faccia triangolare in n^2 triangoli minori con b = c
+
+void TriangolaFacceClasseII(const PoliedriMesh &meshIniziale, PoliedriMesh &meshRisultato, unsigned int b) {
+    if (b == 0) {
+        cerr << "Errore: b = 0 non valido per triangolazione di classe II." << endl;
         return;
     }
+
+    const unsigned int livelloSuddivisione = b;
 
     meshRisultato.Cell0DsCoordinates.resize(3, 0);
     meshRisultato.Cell0DsId.clear();
@@ -42,6 +47,10 @@ void TriangolaFacceClasseI(const PoliedriMesh &meshIniziale, PoliedriMesh &meshR
     for (unsigned int idFaccia = 0; idFaccia < meshIniziale.Cell2DsVertices.size(); ++idFaccia) {
         const auto& faccia = meshIniziale.Cell2DsVertices[idFaccia];
 
+        if (faccia.size() != 3) {
+            cerr << "Triangolazione Classe II supporta solo facce triangolari." << endl;
+            continue;
+        }
 
         Vector3d A = meshIniziale.Cell0DsCoordinates.col(faccia[0]);
         Vector3d B = meshIniziale.Cell0DsCoordinates.col(faccia[1]);
@@ -52,10 +61,10 @@ void TriangolaFacceClasseI(const PoliedriMesh &meshIniziale, PoliedriMesh &meshR
         for (unsigned int i = 0; i <= livelloSuddivisione; ++i) {
             for (unsigned int j = 0; j <= i; ++j) {
                 double a = 1.0 - static_cast<double>(i) / livelloSuddivisione;
-                double b = static_cast<double>(i - j) / livelloSuddivisione;
-                double c = static_cast<double>(j) / livelloSuddivisione;
+                double b_coef = static_cast<double>(i - j) / livelloSuddivisione;
+                double c_coef = static_cast<double>(j) / livelloSuddivisione;
 
-                Vector3d punto = a * A + b * B + c * C;
+                Vector3d punto = a * A + b_coef * B + c_coef * C;
 
                 unsigned int indice;
                 auto it = mappaVertici.find(punto);
@@ -73,7 +82,7 @@ void TriangolaFacceClasseI(const PoliedriMesh &meshIniziale, PoliedriMesh &meshR
             }
         }
 
-        // Triangola la griglia di vertici
+        // Generazione triangoli
         for (unsigned int i = 1; i <= livelloSuddivisione; ++i) {
             for (unsigned int j = 0; j < i; ++j) {
                 unsigned int k1 = idVertici[i][j];
@@ -91,8 +100,8 @@ void TriangolaFacceClasseI(const PoliedriMesh &meshIniziale, PoliedriMesh &meshR
                     TrovaSpigolo(mappaSpigoli, meshRisultato, k3, k1)
                 });
 
-                // Secondo triangolo
                 if (j + 1 < i) {
+                    // Secondo triangolo
                     unsigned int id2 = meshRisultato.Cell2DsVertices.size();
                     meshRisultato.Cell2DsVertices.push_back({k2, k4, k3});
                     meshRisultato.Cell2DsId.push_back(id2);
@@ -106,7 +115,7 @@ void TriangolaFacceClasseI(const PoliedriMesh &meshIniziale, PoliedriMesh &meshR
         }
     }
 
-    // Finalizza il conteggio
+    // Finalizzazione
     meshRisultato.NumCell0Ds = meshRisultato.Cell0DsCoordinates.cols();
     meshRisultato.NumCell1Ds = meshRisultato.Cell1DsExtrema.cols();
     meshRisultato.NumCell2Ds = meshRisultato.Cell2DsVertices.size();
@@ -115,6 +124,11 @@ void TriangolaFacceClasseI(const PoliedriMesh &meshIniziale, PoliedriMesh &meshR
     meshRisultato.Cell3DsVertices.clear();
     meshRisultato.Cell3DsEdges.clear();
     meshRisultato.Cell3DsFaces.clear();
+    
+    cout << "Classe II: triangoli generati = " << meshRisultato.Cell2DsVertices.size() << endl;
+
 }
+
+
 
 } // namespace PoliedriLibrary

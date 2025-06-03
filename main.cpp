@@ -41,7 +41,8 @@ int main() {
         return 1;
     }
 	
-	
+	std::cout << "[DEBUG] Numero facce nella mesh iniziale: " << meshPlatonico.Cell2DsVertices.size() << std::endl;
+
 	// Triangolazione 
     PoliedriMesh meshTriangolata;
 	if (b == c && b > 0) {

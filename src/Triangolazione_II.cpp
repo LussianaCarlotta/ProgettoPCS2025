@@ -31,8 +31,6 @@ void TriangolaFacceClasseII(const PoliedriMesh &meshIniziale, PoliedriMesh &mesh
         return;
     }
 
-    const unsigned int livelloSuddivisione = b;
-
     meshRisultato.Cell0DsCoordinates.resize(3, 0);
     meshRisultato.Cell0DsId.clear();
     meshRisultato.Cell1DsExtrema.resize(2, 0);
@@ -46,25 +44,22 @@ void TriangolaFacceClasseII(const PoliedriMesh &meshIniziale, PoliedriMesh &mesh
 
     for (unsigned int idFaccia = 0; idFaccia < meshIniziale.Cell2DsVertices.size(); ++idFaccia) {
         const auto& faccia = meshIniziale.Cell2DsVertices[idFaccia];
-
-        if (faccia.size() != 3) {
-            cerr << "Triangolazione Classe II supporta solo facce triangolari." << endl;
-            continue;
-        }
+        if (faccia.size() != 3) continue;
 
         Vector3d A = meshIniziale.Cell0DsCoordinates.col(faccia[0]);
         Vector3d B = meshIniziale.Cell0DsCoordinates.col(faccia[1]);
         Vector3d C = meshIniziale.Cell0DsCoordinates.col(faccia[2]);
 
-        vector<vector<unsigned int>> idVertici(livelloSuddivisione + 1);
+        // Crea una griglia triangolare interna (simmetrica, classe II)
+        vector<vector<unsigned int>> idVertici(b + 1);
+        for (unsigned int i = 0; i <= b; ++i) {
+            idVertici[i].resize(b + 1 - i);
+            for (unsigned int j = 0; j <= b - i; ++j) {
+                double u = static_cast<double>(i) / b;
+                double v = static_cast<double>(j) / b;
+                double w = 1.0 - u - v;
 
-        for (unsigned int i = 0; i <= livelloSuddivisione; ++i) {
-            for (unsigned int j = 0; j <= i; ++j) {
-                double a = 1.0 - static_cast<double>(i) / livelloSuddivisione;
-                double b_coef = static_cast<double>(i - j) / livelloSuddivisione;
-                double c_coef = static_cast<double>(j) / livelloSuddivisione;
-
-                Vector3d punto = a * A + b_coef * B + c_coef * C;
+                Vector3d punto = u * A + v * B + w * C;
 
                 unsigned int indice;
                 auto it = mappaVertici.find(punto);
@@ -78,44 +73,38 @@ void TriangolaFacceClasseII(const PoliedriMesh &meshIniziale, PoliedriMesh &mesh
                     mappaVertici[punto] = indice;
                 }
 
-                idVertici[i].push_back(indice);
+                idVertici[i][j] = indice;
             }
         }
 
-        // Generazione triangoli
-        for (unsigned int i = 1; i <= livelloSuddivisione; ++i) {
-            for (unsigned int j = 0; j < i; ++j) {
-                unsigned int k1 = idVertici[i][j];
-                unsigned int k2 = idVertici[i][j + 1];
-                unsigned int k3 = idVertici[i - 1][j];
-                unsigned int k4 = idVertici[i - 1][j + 1];
-
-                // Primo triangolo
-                unsigned int id1 = meshRisultato.Cell2DsVertices.size();
-                meshRisultato.Cell2DsVertices.push_back({k1, k2, k3});
-                meshRisultato.Cell2DsId.push_back(id1);
+        // Costruisci triangoli dalla griglia
+        for (unsigned int i = 0; i < b; ++i) {
+            for (unsigned int j = 0; j < b - i; ++j) {
+                unsigned int v0 = idVertici[i][j];
+                unsigned int v1 = idVertici[i + 1][j];
+                unsigned int v2 = idVertici[i][j + 1];
+                meshRisultato.Cell2DsVertices.push_back({v0, v1, v2});
+                meshRisultato.Cell2DsId.push_back(meshRisultato.Cell2DsId.size());
                 meshRisultato.Cell2DsEdges.push_back({
-                    TrovaSpigolo(mappaSpigoli, meshRisultato, k1, k2),
-                    TrovaSpigolo(mappaSpigoli, meshRisultato, k2, k3),
-                    TrovaSpigolo(mappaSpigoli, meshRisultato, k3, k1)
+                    TrovaSpigolo(mappaSpigoli, meshRisultato, v0, v1),
+                    TrovaSpigolo(mappaSpigoli, meshRisultato, v1, v2),
+                    TrovaSpigolo(mappaSpigoli, meshRisultato, v2, v0)
                 });
 
-                if (j + 1 < i) {
-                    // Secondo triangolo
-                    unsigned int id2 = meshRisultato.Cell2DsVertices.size();
-                    meshRisultato.Cell2DsVertices.push_back({k2, k4, k3});
-                    meshRisultato.Cell2DsId.push_back(id2);
+                if (j < b - i - 1) {
+                    unsigned int v3 = idVertici[i + 1][j + 1];
+                    meshRisultato.Cell2DsVertices.push_back({v1, v3, v2});
+                    meshRisultato.Cell2DsId.push_back(meshRisultato.Cell2DsId.size());
                     meshRisultato.Cell2DsEdges.push_back({
-                        TrovaSpigolo(mappaSpigoli, meshRisultato, k2, k4),
-                        TrovaSpigolo(mappaSpigoli, meshRisultato, k4, k3),
-                        TrovaSpigolo(mappaSpigoli, meshRisultato, k3, k2)
+                        TrovaSpigolo(mappaSpigoli, meshRisultato, v1, v3),
+                        TrovaSpigolo(mappaSpigoli, meshRisultato, v3, v2),
+                        TrovaSpigolo(mappaSpigoli, meshRisultato, v2, v1)
                     });
                 }
             }
         }
     }
 
-    // Finalizzazione
     meshRisultato.NumCell0Ds = meshRisultato.Cell0DsCoordinates.cols();
     meshRisultato.NumCell1Ds = meshRisultato.Cell1DsExtrema.cols();
     meshRisultato.NumCell2Ds = meshRisultato.Cell2DsVertices.size();
@@ -124,10 +113,10 @@ void TriangolaFacceClasseII(const PoliedriMesh &meshIniziale, PoliedriMesh &mesh
     meshRisultato.Cell3DsVertices.clear();
     meshRisultato.Cell3DsEdges.clear();
     meshRisultato.Cell3DsFaces.clear();
-    
-    cout << "Classe II: triangoli generati = " << meshRisultato.Cell2DsVertices.size() << endl;
 
+    cout << "Classe II: triangoli generati = " << meshRisultato.NumCell2Ds << endl;
 }
+
 
 
 

@@ -25,11 +25,11 @@ struct CompareVector3d {
 
 // Triangolazione Classe II: suddivide ogni faccia triangolare in n^2 triangoli minori con b = c
 void TriangolaFacceClasseII(const PoliedriMesh &meshIniziale, PoliedriMesh &meshRisultato, unsigned int b) {
-    std::cout << "[INFO] Forzatura parametro: b = 2 (Classe II con 6 triangoli per faccia)\n";
+    cout << "[INFO] Forzatura parametro: b = 2 (Classe II con 6 triangoli per faccia)\n";
     b = 2;
 
     if (b == 0) {
-        std::cerr << "Errore: b = 0 non valido per triangolazione di classe II." << std::endl;
+        cerr << "Errore: b = 0 non valido per triangolazione di classe II." << std::endl;
         return;
     }
 
@@ -43,9 +43,11 @@ void TriangolaFacceClasseII(const PoliedriMesh &meshIniziale, PoliedriMesh &mesh
     meshRisultato.Cell2DsId.clear();
 
     // Mappa vertici: confronto con tolleranza
-    std::vector<Vector3d> verticiMemorizzati;
-    std::map<std::pair<unsigned int, unsigned int>, unsigned int> mappaSpigoli;
-
+    vector<Vector3d> verticiMemorizzati;
+    map<pair<unsigned int, unsigned int>, unsigned int> mappaSpigoli;
+	
+	
+	// DA CAMBIARE
     auto trovaIdVertice = [&](const Vector3d& P) -> unsigned int {
         double tolleranza = 1e-6;
         for (size_t i = 0; i < verticiMemorizzati.size(); ++i) {
@@ -69,7 +71,7 @@ void TriangolaFacceClasseII(const PoliedriMesh &meshIniziale, PoliedriMesh &mesh
         Vector3d B = meshIniziale.Cell0DsCoordinates.col(faccia[1]);
         Vector3d C = meshIniziale.Cell0DsCoordinates.col(faccia[2]);
 
-        std::vector<std::vector<unsigned int>> idVertici(b + 1);
+        vector<std::vector<unsigned int>> idVertici(b + 1);
         for (unsigned int i = 0; i <= b; ++i) {
             idVertici[i].resize(b + 1 - i);
             for (unsigned int j = 0; j <= b - i; ++j) {
@@ -90,7 +92,7 @@ void TriangolaFacceClasseII(const PoliedriMesh &meshIniziale, PoliedriMesh &mesh
 
                 meshRisultato.Cell2DsVertices.push_back({v0, v1, v2});
                 meshRisultato.Cell2DsId.push_back(meshRisultato.Cell2DsVertices.size() - 1);
-                std::vector<unsigned int> edges1 = {
+                vector<unsigned int> edges1 = {
                     TrovaSpigolo(mappaSpigoli, meshRisultato, v0, v1),
                     TrovaSpigolo(mappaSpigoli, meshRisultato, v1, v2),
                     TrovaSpigolo(mappaSpigoli, meshRisultato, v2, v0)
@@ -101,7 +103,7 @@ void TriangolaFacceClasseII(const PoliedriMesh &meshIniziale, PoliedriMesh &mesh
                     unsigned int v3 = idVertici[i + 1][j + 1];
                     meshRisultato.Cell2DsVertices.push_back({v1, v3, v2});
                     meshRisultato.Cell2DsId.push_back(meshRisultato.Cell2DsVertices.size() - 1);
-                    std::vector<unsigned int> edges2 = {
+                    vector<unsigned int> edges2 = {
                         TrovaSpigolo(mappaSpigoli, meshRisultato, v1, v3),
                         TrovaSpigolo(mappaSpigoli, meshRisultato, v3, v2),
                         TrovaSpigolo(mappaSpigoli, meshRisultato, v2, v1)
@@ -129,4 +131,4 @@ void TriangolaFacceClasseII(const PoliedriMesh &meshIniziale, PoliedriMesh &mesh
 
 
 
-} // namespace PoliedriLibrary
+}

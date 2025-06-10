@@ -426,10 +426,7 @@ void CreaIcosaedro(PoliedriMesh& mesh){
 			{ phi, 0,  1 },
 			{ 0,  -1, phi},
 			{  1,  -phi, 0}
-};
-	
-
-	
+	};
 	
 	for (auto& vertice : vertici) {
 		vertice.normalize();
@@ -445,7 +442,6 @@ void CreaIcosaedro(PoliedriMesh& mesh){
 	}
 
 	mesh.NumCell0Ds = vertici.size();
-	
 	
 	
 	//Celle1Ds
@@ -468,7 +464,6 @@ void CreaIcosaedro(PoliedriMesh& mesh){
 		mesh.Cell1DsExtrema(1, i) = lati[i].second;
 	}
 	mesh.NumCell1Ds = lati.size();
-	
 	
 	
 	//Celle2Ds
@@ -555,7 +550,7 @@ void CreaIcosaedro(PoliedriMesh& mesh){
 
 
 
-bool ScritturaCelle(const PoliedriMesh& mesh, const std::string& nomeBase) {
+bool ScritturaCelle(const PoliedriMesh& mesh, const string& nomeBase) {
     // Cell0Ds
     ofstream file0(nomeBase + "_Cell0Ds.txt");
     if (!file0) {
@@ -630,8 +625,6 @@ bool ImportMesh(PoliedriMesh& mesh, unsigned int p, unsigned int q)
 		cerr << "Poliedro {p=" << p << ", q=" << q << "} non supportato" << endl;
 		return false;
 	}
-	
-
 
 	return true;
 }

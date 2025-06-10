@@ -61,7 +61,8 @@ void TriangolaFacceClasseI(const PoliedriMesh &meshIniziale, PoliedriMesh &meshR
                 auto it = mappaVertici.find(punto);
                 if (it != mappaVertici.end()) {
                     indice = it->second;
-                } else {
+                }
+				else {
                     indice = meshRisultato.Cell0DsCoordinates.cols();
                     meshRisultato.Cell0DsCoordinates.conservativeResize(3, indice + 1);
                     meshRisultato.Cell0DsCoordinates.col(indice) = punto;
@@ -117,4 +118,4 @@ void TriangolaFacceClasseI(const PoliedriMesh &meshIniziale, PoliedriMesh &meshR
     meshRisultato.Cell3DsFaces.clear();
 }
 
-} // namespace PoliedriLibrary
+}

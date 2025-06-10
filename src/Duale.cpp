@@ -16,9 +16,8 @@ using namespace Eigen;
 
 namespace PoliedriLibrary {
 
-std::map<std::pair<unsigned int, unsigned int>, std::vector<unsigned int>>
-buildEdgeToFacesMap(const PoliedriMesh& mesh) {
-    std::map<std::pair<unsigned int, unsigned int>, std::vector<unsigned int>> edgeToFaces;
+map<pair<unsigned int, unsigned int>, vector<unsigned int>> buildEdgeToFacesMap(const PoliedriMesh& mesh) {
+    map<pair<unsigned int, unsigned int>, vector<unsigned int>> edgeToFaces;
 
     for (unsigned int faceId = 0; faceId < mesh.Cell2DsVertices.size(); ++faceId) {
         const auto& verts = mesh.Cell2DsVertices[faceId];
@@ -26,7 +25,8 @@ buildEdgeToFacesMap(const PoliedriMesh& mesh) {
         for (unsigned int i = 0; i < n; ++i) {
             unsigned int v0 = verts[i];
             unsigned int v1 = verts[(i + 1) % n];
-            if (v0 > v1) std::swap(v0, v1);
+            if (v0 > v1)
+				swap(v0, v1);
             edgeToFaces[{v0, v1}].push_back(faceId);
         }
     }
@@ -37,7 +37,6 @@ buildEdgeToFacesMap(const PoliedriMesh& mesh) {
 
 void CostruisciDualMesh(const PoliedriMesh& meshTriangolata, PoliedriMesh& meshDuale) {
   
-
     meshDuale = PoliedriMesh();  // reset struttura
 
     const auto& faces = meshTriangolata.Cell2DsVertices;
@@ -75,7 +74,8 @@ void CostruisciDualMesh(const PoliedriMesh& meshTriangolata, PoliedriMesh& meshD
             unsigned int f1 = facce[0];
             unsigned int f2 = facce[1];
 
-            if (f1 > f2) swap(f1, f2);  // ordinamento per evitare duplicati
+            if (f1 > f2)
+				swap(f1, f2);  // ordinamento per evitare duplicati
 
             if (!archiInseriti.count({f1, f2})) {
                 dualEdges.emplace_back(f1, f2);

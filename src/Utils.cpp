@@ -16,7 +16,7 @@ namespace PoliedriLibrary {
 /// TETRAEDRO
 void CreaTetraedro(PoliedriMesh& mesh)
 {
-    //Celle0D
+    //Celle0Ds
     vector<Vector3d> vertici = {
         {1.0, 1.0, 1.0}, 
         {-1.0, -1.0, 1.0}, 
@@ -24,8 +24,8 @@ void CreaTetraedro(PoliedriMesh& mesh)
         {1.0, -1.0, -1.0}
     };
 
-    for (auto& v : vertici)
-        v.normalize();
+    for (auto& vertice : vertici)
+        vertice.normalize();
 
     mesh.Cell0DsId.clear();
     mesh.Cell0DsCoordinates.resize(3, vertici.size());
@@ -37,7 +37,7 @@ void CreaTetraedro(PoliedriMesh& mesh)
     mesh.NumCell0Ds = vertici.size();
 
 
-    //Celle 1D
+    //Celle1Ds
     vector<pair<unsigned int, unsigned int>> lati = {
         {0,1},{0,2},{0,3},{1,2},{1,3},{2,3}
     };
@@ -53,7 +53,7 @@ void CreaTetraedro(PoliedriMesh& mesh)
     mesh.NumCell1Ds = lati.size();
 
 
-    //Celle2D
+    //Celle2Ds
 	mesh.Cell2DsId.clear();
     mesh.Cell2DsVertices.clear();
     mesh.Cell2DsEdges.clear();
@@ -77,12 +77,11 @@ void CreaTetraedro(PoliedriMesh& mesh)
         {4, 5, 3},
         {5, 2, 1}
     };
-
+	
     mesh.NumCell2Ds = 4;
     
 
-
-    //Celle3D
+    //Celle3Ds
     mesh.Cell3DsId.clear();
     mesh.Cell3DsVertices.clear();
     mesh.Cell3DsEdges.clear();
@@ -95,7 +94,6 @@ void CreaTetraedro(PoliedriMesh& mesh)
 
     mesh.NumCell3Ds = 1;
 }
-
 
 //********************************************************************************	
 ///CUBO
@@ -120,11 +118,10 @@ void CreaCubo(PoliedriMesh& mesh) {
 		mesh.Cell0DsId.push_back(i);
 		mesh.Cell0DsCoordinates.col(i) = vertici[i];
 	}
-	
 	mesh.NumCell0Ds = vertici.size();
 	
 	
-	//Celle1DS
+	//Celle1Ds
 	vector<pair<unsigned int, unsigned int>> lati = {
 		{0,1},{1,3},{3,2},{2,0},
 		{4,5},{5,7},{7,6},{6,4},
@@ -190,8 +187,8 @@ void CreaCubo(PoliedriMesh& mesh) {
 void CreaOttaedro(PoliedriMesh& mesh) {
 	
 	vector<Vector3d> vertici = {
-	{ 1.0,  0.0,  0.0}, {-1.0,  0.0,  0.0}, { 0.0,  1.0,  0.0},
-	{ 0.0, -1.0,  0.0}, { 0.0,  0.0,  1.0}, { 0.0,  0.0, -1.0}
+	{1.0, 0.0, 0.0}, {-1.0, 0.0, 0.0}, {0.0, 1.0, 0.0},
+	{0.0, -1.0, 0.0}, {0.0, 0.0, 1.0}, {0.0, 0.0, -1.0}
 	};
 
 	for (auto& vertice : vertici) {
@@ -268,7 +265,6 @@ void CreaOttaedro(PoliedriMesh& mesh) {
 	mesh.Cell3DsFaces.clear();
 	
 	mesh.Cell3DsId.push_back(0);
-	
 	mesh.Cell3DsVertices.push_back(mesh.Cell0DsId);
 	mesh.Cell3DsEdges.push_back(mesh.Cell1DsId);
 	mesh.Cell3DsFaces.push_back(mesh.Cell2DsId);
@@ -276,12 +272,11 @@ void CreaOttaedro(PoliedriMesh& mesh) {
 	mesh.NumCell3Ds = 1;
 }
 
-
 //*****************************************************************************
 ///DODECAEDRO
 void CreaDodecaedro(PoliedriMesh& mesh) {
 
-	const double phi = (1.0 + sqrt(5.0)) / 2.0; // calcolo sezione aurea,
+	const double phi = (1.0 + sqrt(5.0)) / 2.0;  // calcolo sezione aurea
 	
 	vector<Vector3d> vertici = {
 		{0, -1 / phi, phi},
@@ -304,7 +299,6 @@ void CreaDodecaedro(PoliedriMesh& mesh) {
 		{-1, -1, -1},
 		{0, -1 / phi, -phi},
 		{0, 1 / phi, -phi}
-		
     };
 	
 	for (auto& vertice : vertici) {
@@ -324,7 +318,7 @@ void CreaDodecaedro(PoliedriMesh& mesh) {
 	mesh.NumCell0Ds = vertici.size();
 	
 	
-	//Celle1DS
+	//Celle1Ds
 	vector<pair<unsigned int, unsigned int>> lati = {
 		{0, 1}, {0, 4}, {0, 7}, {1, 2}, {1, 9},
 		{2, 3}, {2, 11}, {3, 4}, {3, 13}, {4, 5},
@@ -366,9 +360,7 @@ void CreaDodecaedro(PoliedriMesh& mesh) {
 		{17, 18, 10, 9, 8},
 		{18, 19, 12, 11, 10},
 		{19, 15, 14, 13, 12},
-		{15, 16, 17, 18, 19},
-		
-        
+		{15, 16, 17, 18, 19},        
     };
 
     mesh.Cell2DsEdges = {
@@ -385,8 +377,6 @@ void CreaDodecaedro(PoliedriMesh& mesh) {
 		{28, 22, 20, 18, 19},
 		{29, 24, 23, 21, 22},
 		{25, 26, 27, 28, 29},
-		
-    
     };
 
     mesh.NumCell2Ds = mesh.Cell2DsId.size();
@@ -399,7 +389,6 @@ void CreaDodecaedro(PoliedriMesh& mesh) {
 	mesh.Cell3DsFaces.clear();
 	
 	mesh.Cell3DsId.push_back(0);
-	
 	mesh.Cell3DsVertices.push_back(mesh.Cell0DsId);
 	mesh.Cell3DsEdges.push_back(mesh.Cell1DsId);
 	mesh.Cell3DsFaces.push_back(mesh.Cell2DsId);
@@ -408,24 +397,24 @@ void CreaDodecaedro(PoliedriMesh& mesh) {
 }
 
 //**********************************************************************************
-
 ///ICOSAEDRO
-void CreaIcosaedro(PoliedriMesh& mesh){
-	const double phi = (1.0 + sqrt(5.0)) / 2.0; // calcolo sezione aurea,
+void CreaIcosaedro(PoliedriMesh& mesh) {
+	
+	const double phi = (1.0 + sqrt(5.0)) / 2.0; // calcolo sezione aurea
 	
 	vector<Vector3d> vertici = {
-			{  -1,  phi,  0},
-			{  -phi,  0, -1},
-			{  0,  1,  -phi},
-			{ 1,  phi,  0},
-			{ 0,  1,  phi},
-			{  -phi,  0,  1 },
-			{  -1, -phi,  0},
-			{  0,  -1, -phi},
-			{  phi, 0,  -1},
-			{ phi, 0,  1 },
-			{ 0,  -1, phi},
-			{  1,  -phi, 0}
+			{-1, phi, 0},
+			{-phi, 0, -1},
+			{0, 1, -phi},
+			{1, phi, 0},
+			{0, 1, phi},
+			{-phi, 0, 1},
+			{-1, -phi, 0},
+			{0, -1, -phi},
+			{phi, 0, -1},
+			{phi, 0, 1},
+			{0, -1, phi},
+			{1, -phi, 0}
 	};
 	
 	for (auto& vertice : vertici) {
@@ -496,9 +485,7 @@ void CreaIcosaedro(PoliedriMesh& mesh){
 		{7, 11, 8},
 		{8, 11, 9},
 		{9, 11, 10},
-		{10, 11, 6}
-
-		
+		{10, 11, 6},
 	};
 	
 	
@@ -525,8 +512,7 @@ void CreaIcosaedro(PoliedriMesh& mesh){
 		{26, 27, 22},
 		{27, 28, 23},
 		{28, 29, 24},
-		{29, 25, 20},
-			
+		{29, 25, 20},	
 	};
 	
 	mesh.NumCell2Ds = mesh.Cell2DsId.size();
@@ -539,7 +525,6 @@ void CreaIcosaedro(PoliedriMesh& mesh){
 	mesh.Cell3DsFaces.clear();
 	
 	mesh.Cell3DsId.push_back(0);
-	
 	mesh.Cell3DsVertices.push_back(mesh.Cell0DsId);
 	mesh.Cell3DsEdges.push_back(mesh.Cell1DsId);
 	mesh.Cell3DsFaces.push_back(mesh.Cell2DsId);
@@ -548,9 +533,8 @@ void CreaIcosaedro(PoliedriMesh& mesh){
 }
 
 
-
-
 bool ScritturaCelle(const PoliedriMesh& mesh, const string& nomeBase) {
+	
     // Cell0Ds
     ofstream file0(nomeBase + "_Cell0Ds.txt");
     if (!file0) {
@@ -558,7 +542,8 @@ bool ScritturaCelle(const PoliedriMesh& mesh, const string& nomeBase) {
         return false;
     }
 
-    file0 << "# ID x y z\n";
+    file0 << "# ID x y z" << endl;
+	
     for (size_t i = 0; i < mesh.NumCell0Ds; ++i) {
         file0 << mesh.Cell0DsId[i] << " "
               << mesh.Cell0DsCoordinates(0, i) << " "
@@ -574,7 +559,8 @@ bool ScritturaCelle(const PoliedriMesh& mesh, const string& nomeBase) {
         return false;
     }
 
-    file1 << "# ID OriginId EndId\n";
+    file1 << "# ID OriginId EndId" << endl;
+	
     for (size_t i = 0; i < mesh.NumCell1Ds; ++i) {
         file1 << mesh.Cell1DsId[i] << " "
               << mesh.Cell1DsExtrema(0, i) << " "
@@ -589,7 +575,7 @@ bool ScritturaCelle(const PoliedriMesh& mesh, const string& nomeBase) {
         return false;
     }
 
-    file2 << "# ID NumVertices NumEdges VertexIds EdgeIds\n";
+    file2 << "# ID NumVertices NumEdges VertexIds EdgeIds" << endl;
     for (size_t i = 0; i < mesh.NumCell2Ds; ++i) {
         file2 << mesh.Cell2DsId[i] << " "
               << mesh.Cell2DsVertices[i].size() << " "
@@ -622,19 +608,23 @@ bool ImportMesh(PoliedriMesh& mesh, unsigned int p, unsigned int q)
 		CreaIcosaedro(mesh);
 	else
 	{
-		cerr << "Poliedro {p=" << p << ", q=" << q << "} non supportato" << endl;
+		cerr << "Poliedro {p = " << p << ", q = " << q << "} non supportato" << endl;
 		return false;
 	}
 
 	return true;
 }
 
-unsigned int TrovaSpigolo(map<pair<unsigned int, unsigned int>, unsigned int> &mappaSpigoli, PoliedriMesh &mesh, unsigned int start, unsigned int end) {
-    if (start > end) swap(start, end);
+
+unsigned int TrovaSpigolo(map<pair<unsigned int, unsigned int>, unsigned int> &mappaSpigoli, PoliedriMesh &mesh, unsigned int start, unsigned int end)
+{
+    if (start > end)
+		swap(start, end);
     auto chiave = make_pair(start, end);
 
     auto iter = mappaSpigoli.find(chiave);
-    if (iter != mappaSpigoli.end()) return iter->second;
+    if (iter != mappaSpigoli.end())
+		return iter->second;
 
     unsigned int nuovoIndice = mesh.Cell1DsExtrema.cols();
     mesh.Cell1DsExtrema.conservativeResize(2, nuovoIndice + 1);

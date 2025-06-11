@@ -13,7 +13,6 @@ namespace PoliedriLibrary
 
 	bool ScritturaCelle(const PoliedriMesh& mesh, const string& nomeBase);
 	
-	
 	void Export(const PoliedriMesh& mesh, const string& nomeBase);
 	
 	void CostruisciDualMesh(const PoliedriMesh& meshOriginale, PoliedriMesh& meshDuale);

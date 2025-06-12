@@ -25,12 +25,12 @@ struct CompareVector3d {
 
 // Triangolazione Classe II: suddivide ogni faccia triangolare in n^2 triangoli minori con b = c
 void TriangolaFacceClasseII(const PoliedriMesh &meshIniziale, PoliedriMesh &meshRisultato, unsigned int b) {
-    cout << "[INFO] Forzatura parametro: b = 2 (Classe II con 6 triangoli per faccia)\n";
+    cout << "[INFO] Forzatura parametro: b = 2 (Classe II con 6 triangoli per faccia)" << endl;
     b = 2;
 
     if (b == 0) {
-        cerr << "Errore: b = 0 non valido per triangolazione di classe II." << std::endl;
-        return;
+        cerr << "Errore: b = 0 non valido per triangolazione di classe II." << endl;
+        return false; //aggiunto "false"
     }
 
     // Inizializzazione struttura risultato
@@ -47,7 +47,7 @@ void TriangolaFacceClasseII(const PoliedriMesh &meshIniziale, PoliedriMesh &mesh
     map<pair<unsigned int, unsigned int>, unsigned int> mappaSpigoli;
 	
 	
-	// DA CAMBIARE
+	// DA CAMBIARE perché è una lambda function
     auto trovaIdVertice = [&](const Vector3d& P) -> unsigned int {
         double tolleranza = 1e-6;
         for (size_t i = 0; i < verticiMemorizzati.size(); ++i) {
@@ -65,13 +65,14 @@ void TriangolaFacceClasseII(const PoliedriMesh &meshIniziale, PoliedriMesh &mesh
 
     for (unsigned int idFaccia = 0; idFaccia < meshIniziale.Cell2DsVertices.size(); ++idFaccia) {
         const auto& faccia = meshIniziale.Cell2DsVertices[idFaccia];
-        if (faccia.size() != 3) continue;
+        if (faccia.size() != 3)
+			continue;
 
         Vector3d A = meshIniziale.Cell0DsCoordinates.col(faccia[0]);
         Vector3d B = meshIniziale.Cell0DsCoordinates.col(faccia[1]);
         Vector3d C = meshIniziale.Cell0DsCoordinates.col(faccia[2]);
 
-        vector<std::vector<unsigned int>> idVertici(b + 1);
+        vector<vector<unsigned int>> idVertici(b + 1);
         for (unsigned int i = 0; i <= b; ++i) {
             idVertici[i].resize(b + 1 - i);
             for (unsigned int j = 0; j <= b - i; ++j) {
@@ -119,8 +120,11 @@ void TriangolaFacceClasseII(const PoliedriMesh &meshIniziale, PoliedriMesh &mesh
     meshRisultato.NumCell2Ds = meshRisultato.Cell2DsVertices.size();
     meshRisultato.NumCell3Ds = 0;
     meshRisultato.Cell3DsId.clear();
+	meshRisultato.Cell3DsNumVertices.clear(); //aggiunto
     meshRisultato.Cell3DsVertices.clear();
+	meshRisultato.Cell3DsNumEdges.clear(); //aggiunto
     meshRisultato.Cell3DsEdges.clear();
+	meshRisultato.Cell3DsNumFaces.clear(); //aggiunto
     meshRisultato.Cell3DsFaces.clear();
 }
 

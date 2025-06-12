@@ -5,7 +5,7 @@ namespace PoliedriLibrary {
   
 	void CostruisciDualMesh(const PoliedriMesh& meshTriangolata, PoliedriMesh& meshDuale);
 
-	map<pair<unsigned int, unsigned int>, vector<unsigned int>> buildEdgeToFacesMap(const PoliedriMesh& meshTriangolata);
+	map<pair<unsigned int, unsigned int>, vector<unsigned int>> Mappa_LatoFaccia(const PoliedriMesh& meshTriangolata); //ex buildEdgesToFaces()
 	
 	void ProiettaSuSfera(PoliedriMesh& mesh);
 }

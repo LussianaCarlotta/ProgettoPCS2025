@@ -25,7 +25,7 @@ struct CompareVector3d {
 void TriangolaFacceClasseI(const PoliedriMesh &meshIniziale, PoliedriMesh &meshRisultato, unsigned int livelloSuddivisione) {
     if (livelloSuddivisione == 0) {
         cerr << "Errore: livelloSuddivisione = 0. Impossibile triangolare." << endl;
-        return;
+        return false; // ho aggiungo "false"
     }
 
     meshRisultato.Cell0DsCoordinates.resize(3, 0);
@@ -40,8 +40,8 @@ void TriangolaFacceClasseI(const PoliedriMesh &meshIniziale, PoliedriMesh &meshR
     map<pair<unsigned int, unsigned int>, unsigned int> mappaSpigoli;
 
     for (unsigned int idFaccia = 0; idFaccia < meshIniziale.Cell2DsVertices.size(); ++idFaccia) {
+		
         const auto& faccia = meshIniziale.Cell2DsVertices[idFaccia];
-
 
         Vector3d A = meshIniziale.Cell0DsCoordinates.col(faccia[0]);
         Vector3d B = meshIniziale.Cell0DsCoordinates.col(faccia[1]);
@@ -50,6 +50,7 @@ void TriangolaFacceClasseI(const PoliedriMesh &meshIniziale, PoliedriMesh &meshR
         vector<vector<unsigned int>> idVertici(livelloSuddivisione + 1);
 
         for (unsigned int i = 0; i <= livelloSuddivisione; ++i) {
+			// cosa si fa qui?
             for (unsigned int j = 0; j <= i; ++j) {
                 double a = 1.0 - static_cast<double>(i) / livelloSuddivisione;
                 double b = static_cast<double>(i - j) / livelloSuddivisione;
@@ -113,8 +114,11 @@ void TriangolaFacceClasseI(const PoliedriMesh &meshIniziale, PoliedriMesh &meshR
     meshRisultato.NumCell2Ds = meshRisultato.Cell2DsVertices.size();
     meshRisultato.NumCell3Ds = 0;
     meshRisultato.Cell3DsId.clear();
+	meshRisultato.Cell3DsNumVertices.clear(); //aggiunta
     meshRisultato.Cell3DsVertices.clear();
+	meshRisultato.Cell3DsNumEdges.clear(); //aggiunta
     meshRisultato.Cell3DsEdges.clear();
+	meshRisultato.Cell3DsNumFaces.clear(); //aggiunta
     meshRisultato.Cell3DsFaces.clear();
 }
 

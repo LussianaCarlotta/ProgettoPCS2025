@@ -13,12 +13,10 @@ struct PoliedriMesh
 	unsigned int NumCell0Ds = 0; //vertici
 	vector<unsigned int> Cell0DsId = {}; //Id, dimensione: 1 x NumCell0Ds
 	MatrixXd Cell0DsCoordinates = {}; //(X,Y,Z), dimensione: 3 x NumCell0Ds
-	vector<bool> Cell0DsDuplicati = {}; //Cell0Ds duplicati, dimensione: 1 x NumCell0Ds
 
 	unsigned int NumCell1Ds = 0; //lati
 	vector<unsigned int> Cell1DsId = {}; //Id, dimensione: 1 x NumCell1Ds
 	MatrixXi Cell1DsExtrema = {}; //(Origin, End), dimensione: 2 x NumCell1Ds
-	vector<bool> Cell1DsDuplicati = {}; //Cell1Ds duplicati, dimensione: 1 x NumCell1Ds
 	
 	unsigned int NumCell2Ds = 0; //facce
 	vector<unsigned int> Cell2DsId = {}; //Id, dimensione: 1 x NumCell2Ds

@@ -31,7 +31,8 @@ int main() {
 	bool richiedeDualizzazioneFinale; 
 	if (p == 3 && q >= 3) {
 		richiedeDualizzazioneFinale = false;
-	} else {
+	}
+	else {
 		swap(p, q);
 		richiedeDualizzazioneFinale = true;
 	}
@@ -41,17 +42,20 @@ int main() {
         return 1;
     }
 	
-	std::cout << "[DEBUG] Numero facce nella mesh iniziale: " << meshPlatonico.Cell2DsVertices.size() << std::endl;
+	cout << "[DEBUG] Numero facce nella mesh iniziale: " << meshPlatonico.Cell2DsVertices.size() << endl;
+
 
 	// Triangolazione 
     PoliedriMesh meshTriangolata;
 	if (b == c && b > 0) {
 		// Classe II: b = c
 		TriangolaFacceClasseII(meshPlatonico, meshTriangolata, b);
-	} else if ((b == 0 && c > 0) || (c == 0 && b > 0)) {
+	}
+	else if ((b == 0 && c > 0) || (c == 0 && b > 0)) {
 		// Classe I: uno dei due è 0
 		TriangolaFacceClasseI(meshPlatonico, meshTriangolata, b + c);
-	} else {
+	}
+	else {
 		cerr << "Errore: combinazione b != c non supportata" << endl;
 		return 1;
 	}
@@ -69,7 +73,8 @@ int main() {
 	string nomeBaseOutput;
 	if (richiedeDualizzazioneFinale == true) {
 		nomeBaseOutput = "Goldberg"; // se è stato costruito il duale,
-	} else {
+	}
+	else {
 		nomeBaseOutput = "Geodetico"; //se la triangolazione non ha richiesto il duale
 	}
 
@@ -82,7 +87,6 @@ int main() {
 	Export(meshTriangolata, nomeBaseOutput);
 
 	cout << "Mesh di " << nomeBaseOutput << " esportata correttamente." << endl;
-
 
     return 0;
 }

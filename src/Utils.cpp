@@ -83,10 +83,14 @@ void CreaTetraedro(PoliedriMesh& mesh)
 
     //Celle3Ds
     mesh.Cell3DsId.clear();
+	mesh.Cell3DsNumVertices.clear();
     mesh.Cell3DsVertices.clear();
+	mesh.Cell3DsNumEdges.clear();
     mesh.Cell3DsEdges.clear();
+	mesh.Cell3DsNumFaces.clear();
     mesh.Cell3DsFaces.clear();
 
+// non so come aggiungere gli id di vertici, lati e facce 
     mesh.Cell3DsId.push_back(0);
     mesh.Cell3DsVertices.push_back(mesh.Cell0DsId);
     mesh.Cell3DsEdges.push_back(mesh.Cell1DsId);
@@ -169,10 +173,14 @@ void CreaCubo(PoliedriMesh& mesh) {
 	
 	//Celle3Ds
 	mesh.Cell3DsId.clear();
-	mesh.Cell3DsVertices.clear();
-	mesh.Cell3DsEdges.clear();
-	mesh.Cell3DsFaces.clear();
+	mesh.Cell3DsNumVertices.clear();
+    mesh.Cell3DsVertices.clear();
+	mesh.Cell3DsNumEdges.clear();
+    mesh.Cell3DsEdges.clear();
+	mesh.Cell3DsNumFaces.clear();
+    mesh.Cell3DsFaces.clear();
 	
+// non so come aggiungere gli id di vertici, lati e facce
 	mesh.Cell3DsId.push_back(0);
 	mesh.Cell3DsVertices.push_back(mesh.Cell0DsId);
 	mesh.Cell3DsEdges.push_back(mesh.Cell1DsId);
@@ -259,11 +267,15 @@ void CreaOttaedro(PoliedriMesh& mesh) {
 	
 	
 	//Celle3Ds
-	mesh.Cell3DsId.clear();
-	mesh.Cell3DsVertices.clear();
-	mesh.Cell3DsEdges.clear();
-	mesh.Cell3DsFaces.clear();
+		mesh.Cell3DsId.clear();
+	mesh.Cell3DsNumVertices.clear();
+    mesh.Cell3DsVertices.clear();
+	mesh.Cell3DsNumEdges.clear();
+    mesh.Cell3DsEdges.clear();
+	mesh.Cell3DsNumFaces.clear();
+    mesh.Cell3DsFaces.clear();
 	
+// non so come aggiungere gli id di vertici, lati e facce
 	mesh.Cell3DsId.push_back(0);
 	mesh.Cell3DsVertices.push_back(mesh.Cell0DsId);
 	mesh.Cell3DsEdges.push_back(mesh.Cell1DsId);
@@ -383,11 +395,15 @@ void CreaDodecaedro(PoliedriMesh& mesh) {
 	
 	
 	//Celle3Ds
-	mesh.Cell3DsId.clear();
-	mesh.Cell3DsVertices.clear();
-	mesh.Cell3DsEdges.clear();
-	mesh.Cell3DsFaces.clear();
+		mesh.Cell3DsId.clear();
+	mesh.Cell3DsNumVertices.clear();
+    mesh.Cell3DsVertices.clear();
+	mesh.Cell3DsNumEdges.clear();
+    mesh.Cell3DsEdges.clear();
+	mesh.Cell3DsNumFaces.clear();
+    mesh.Cell3DsFaces.clear();
 	
+// non so come aggiungere gli id di vertici, lati e facce
 	mesh.Cell3DsId.push_back(0);
 	mesh.Cell3DsVertices.push_back(mesh.Cell0DsId);
 	mesh.Cell3DsEdges.push_back(mesh.Cell1DsId);
@@ -520,10 +536,14 @@ void CreaIcosaedro(PoliedriMesh& mesh) {
 	
 	//Celle3Ds
 	mesh.Cell3DsId.clear();
-	mesh.Cell3DsVertices.clear();
-	mesh.Cell3DsEdges.clear();
-	mesh.Cell3DsFaces.clear();
+	mesh.Cell3DsNumVertices.clear();
+    mesh.Cell3DsVertices.clear();
+	mesh.Cell3DsNumEdges.clear();
+    mesh.Cell3DsEdges.clear();
+	mesh.Cell3DsNumFaces.clear();
+    mesh.Cell3DsFaces.clear();
 	
+// non so come aggiungere gli id di vertici, lati e facce
 	mesh.Cell3DsId.push_back(0);
 	mesh.Cell3DsVertices.push_back(mesh.Cell0DsId);
 	mesh.Cell3DsEdges.push_back(mesh.Cell1DsId);
@@ -589,7 +609,29 @@ bool ScritturaCelle(const PoliedriMesh& mesh, const string& nomeBase) {
         file2 << "\n";
     }
     file2.close();
-
+	
+	// Cell3Ds
+	/*
+	ofstream file3(nomeBase + "_Cell3Ds.txt");
+	if(!file3) {
+		cerr << "Errore apertura file " << nomeBase << "_Cell3Ds.txt" << endl;
+		return false;
+	}
+	
+	file3 << "# ID NumVertices Vertices NumEdges Edges NumFaces Faces" << endl
+	for(size_t i = 0; i < mesh.NumCell3Ds; ++i) {
+		file3 << mesh.Cell3DsId[i] << " "
+			  << mesh.Cell3DsNumVertices[i] << " "
+			  << mesh.Cell3DsVertices[i] << " "
+			  << mesh.Cell3DsNumEdges[i] << " "
+			  << mesh.Cell3DsEdges[i] << " "
+			  << mesh.Cell3DsNumFaces[i] << " "
+			  << mesh.Cell3DsFaces[i];
+		file3 << endl;
+	}
+	file3.close();
+	*/
+	
     return true;
 }
 

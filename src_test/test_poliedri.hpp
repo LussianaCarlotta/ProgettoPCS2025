@@ -6,7 +6,7 @@
 #include <gtest/gtest.h>
 #include "PoliedriMesh.hpp"
 
-namespace PoliedriMesh {
+namespace PoliedriLibrary {
 	
 TEST()
 }

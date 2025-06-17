@@ -30,7 +30,7 @@ void TriangolaFacceClasseII(const PoliedriMesh &meshIniziale, PoliedriMesh &mesh
 
     if (b == 0) {
         cerr << "Errore: b = 0 non valido per triangolazione di classe II." << endl;
-        return false; //aggiunto "false"
+        return;
     }
 
     // Inizializzazione struttura risultato

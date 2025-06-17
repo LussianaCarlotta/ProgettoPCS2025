@@ -7,5 +7,4 @@ namespace PoliedriLibrary {
 	
 	void TriangolaFacceClasseI(const PoliedriMesh &meshIniziale, PoliedriMesh &meshRisultato, unsigned int livelloSuddivisione); //cos'è il livelloSuddivisione?
 	void TriangolaFacceClasseII(const PoliedriMesh &meshIniziale, PoliedriMesh &meshRisultato, unsigned int b);
-
 }

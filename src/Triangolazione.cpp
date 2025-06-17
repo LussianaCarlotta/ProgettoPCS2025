@@ -26,6 +26,7 @@ void TriangolaFacceClasseI(const PoliedriMesh &meshIniziale, PoliedriMesh &meshR
     if (livelloSuddivisione == 0) {
         cerr << "Errore: livelloSuddivisione = 0. Impossibile triangolare." << endl;
         return;
+
     }
 
     meshRisultato.Cell0DsCoordinates.resize(3, 0);

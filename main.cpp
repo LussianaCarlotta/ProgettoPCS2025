@@ -27,7 +27,7 @@ int main() {
 		cerr << "Errore: almeno uno tra b o c deve essere maggiore di 0." << endl;
 		return 1;
 	}
-	
+	 
 	bool richiedeDualizzazioneFinale; 
 	if (p == 3 && q >= 3) {
 		richiedeDualizzazioneFinale = false;

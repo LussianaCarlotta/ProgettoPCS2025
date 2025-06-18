@@ -137,4 +137,64 @@ TEST(Cell2DsTest, Inizializzazione) {
 
 // Test sui poliedri
 
+unsigned int NumCell3Ds = 0;
+std::vector<unsigned int> Cell3DsId;
+std::vector<unsigned int> Cell3DsNumVertices;
+std::vector<std::vector<unsigned int>> Cell3DsVertices;
+std::vector<unsigned int> Cell3DsNumEdges;
+std::vector<std::vector<unsigned int>> Cell3DsEdges;
+std::vector<unsigned int> Cell3DsNumFaces;
+std::vector<std::vector<unsigned int>> Cell3DsFaces;
+
+void inizializzaPoliedri(unsigned int num) {
+	NumCell3Ds = num;
+	Cell3DsId.resize(num);
+	Cell3DsNumVertices.resize(num);
+	Cell3DsVertices.resize(num);
+	Cell3DsNumEdges.resize(num);
+	Cell3DsEdges.resize(num);
+	Cell3DsNumFaces.resize(num);
+	Cell3DsFaces.resize(num);
+	
+	for(unsigned int i = 0; i < num; ++i) {
+		Cell3DsId[i] = i;
+		Cell3DsNumVertices[i] = 4;
+		Cell3DsVertices[i] = {0, 1, 2, 3};
+		Cell3DsNumEdges[i] = 6;
+		Cell3DsEdges[i] = {0, 1, 2, 3, 4, 5};
+		Cell3DsNumFaces[i] = 4;
+		Cell3DsFaces[i] = {0, 1, 2, 3};
+	}
+}
+
+TEST(Cell3DsTest, Inizializzazione) {
+	inizializzaPoliedri(5); // num è arbitrario e indica il numero di poliedri da testare
+	
+	EXPECT_EQ(NumCell3Ds, 5);
+    EXPECT_EQ(Cell3DsId.size(), 5);
+    EXPECT_EQ(Cell3DsNumVertices.size(), 5);
+    EXPECT_EQ(Cell3DsVertices.size(), 5);
+    EXPECT_EQ(Cell3DsNumEdges.size(), 5);
+    EXPECT_EQ(Cell3DsEdges.size(), 5);
+    EXPECT_EQ(Cell3DsNumFaces.size(), 5);
+    EXPECT_EQ(Cell3DsFaces.size(), 5);
+	
+	for(unsigned int i = 0; i < 5; ++i) {
+		EXPECT_EQ(Cell3DsId[i], i);
+        EXPECT_EQ(Cell3DsNumVertices[i], Cell3DsVertices[i].size());
+        EXPECT_EQ(Cell3DsNumEdges[i], Cell3DsEdges[i].size());
+        EXPECT_EQ(Cell3DsNumFaces[i], Cell3DsFaces[i].size());
+	}
+}
+
+
+// Test sulla costruzione dei solidi geodetici di classe 1
+
+// Test sulla costruzione dei solidi geodetici di classe 2
+
+// Test sulla costruzione dei duali
+
+// Test sulla proiezione dei vertici sulla sfera
+
+// Test sul cammino minimo
 }

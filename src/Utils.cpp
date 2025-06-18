@@ -28,7 +28,7 @@ void CreaTetraedro(PoliedriMesh& mesh)
         vertice.normalize();
 
     mesh.Cell0DsId.clear();
-    mesh.Cell0DsCoordinates.resize(3, vertici.size());
+    mesh.Cell0DsCoordinates.resize(3, vertici.size());  // allocazione di memoria per le coordinate
 
     for (unsigned int i = 0; i < vertici.size(); ++i) {
         mesh.Cell0DsId.push_back(i);
@@ -39,11 +39,11 @@ void CreaTetraedro(PoliedriMesh& mesh)
 
     //Celle1Ds
     vector<pair<unsigned int, unsigned int>> lati = {
-        {0,1},{0,2},{0,3},{1,2},{1,3},{2,3}
+        {0,1}, {0,2}, {0,3}, {1,2}, {1,3}, {2,3}
     };
 
     mesh.Cell1DsId.clear();
-    mesh.Cell1DsExtrema.resize(2, lati.size());
+    mesh.Cell1DsExtrema.resize(2, lati.size());  // allocazione di memoria per gli estremi
 
     for (unsigned int i = 0; i < lati.size(); ++i) {
         mesh.Cell1DsId.push_back(i);
@@ -58,9 +58,9 @@ void CreaTetraedro(PoliedriMesh& mesh)
     mesh.Cell2DsVertices.clear();
     mesh.Cell2DsEdges.clear();
     
-    mesh.Cell2DsId.resize(4);
-    mesh.Cell2DsVertices.resize(4);
-    mesh.Cell2DsEdges.resize(4);
+    mesh.Cell2DsId.resize(4);  // alloca uno spazio di dimensione 4 per gli Id
+    mesh.Cell2DsVertices.resize(4);  // alloca uno spazio di dimensione 4 per i vertici
+    mesh.Cell2DsEdges.resize(4);  // alloca uno spazio di dimensione 4 per i lati
 
 	mesh.Cell2DsId = {0, 1, 2, 3};
 	
@@ -104,10 +104,10 @@ void CreaTetraedro(PoliedriMesh& mesh)
 void CreaCubo(PoliedriMesh& mesh) {
 	
 	vector<Vector3d> vertici = {
-		{-1.0, -1.0, -1.0}, {-1.0, -1.0,  1.0}, 
-		{-1.0,  1.0, -1.0}, {-1.0,  1.0,  1.0},
-		{ 1.0, -1.0, -1.0}, { 1.0, -1.0,  1.0}, 
-		{ 1.0,  1.0, -1.0}, { 1.0,  1.0,  1.0}
+		{-1.0, -1.0, -1.0}, {-1.0, -1.0, 1.0}, 
+		{-1.0, 1.0, -1.0}, {-1.0, 1.0, 1.0},
+		{1.0, -1.0, -1.0}, {1.0, -1.0, 1.0}, 
+		{1.0, 1.0, -1.0}, {1.0, 1.0, 1.0}
 	};
 
 	for (auto& vertice : vertici) {
@@ -116,7 +116,7 @@ void CreaCubo(PoliedriMesh& mesh) {
 	
 	//Celle0Ds
 	mesh.Cell0DsId.clear();
-    mesh.Cell0DsCoordinates.resize(3, vertici.size());
+    mesh.Cell0DsCoordinates.resize(3, vertici.size());  // allocazione di memoria per le coordinate
 	
 	for (unsigned int i = 0; i < vertici.size(); ++i) {
 		mesh.Cell0DsId.push_back(i);
@@ -127,13 +127,13 @@ void CreaCubo(PoliedriMesh& mesh) {
 	
 	//Celle1Ds
 	vector<pair<unsigned int, unsigned int>> lati = {
-		{0,1},{1,3},{3,2},{2,0},
-		{4,5},{5,7},{7,6},{6,4},
-		{0,4},{1,5},{3,7},{2,6}
+		{0,1}, {1,3}, {3,2}, {2,0},
+		{4,5}, {5,7}, {7,6}, {6,4},
+		{0,4}, {1,5}, {3,7}, {2,6}
 	};
 	
 	mesh.Cell1DsId.clear();
-    mesh.Cell1DsExtrema.resize(2, lati.size());
+    mesh.Cell1DsExtrema.resize(2, lati.size());  // allocazione di memoria per gli estremi
 	
 	for (unsigned int i = 0; i < lati.size(); ++i) {
 		mesh.Cell1DsId.push_back(i);
@@ -148,6 +148,10 @@ void CreaCubo(PoliedriMesh& mesh) {
     mesh.Cell2DsVertices.clear();
     mesh.Cell2DsEdges.clear();
 	
+	mesh.Cell2DsId.resize(6);  // alloca uno spazio di dimensione 6 per gli Id
+    mesh.Cell2DsVertices.resize(6);  // alloca uno spazio di dimensione 6 per i vertici
+    mesh.Cell2DsEdges.resize(6);  // alloca uno spazio di dimensione 6 per i lati
+
 	mesh.Cell2DsId = {0, 1, 2, 3, 4, 5};
 	
 	mesh.Cell2DsVertices = {
@@ -156,7 +160,6 @@ void CreaCubo(PoliedriMesh& mesh) {
         {0, 4, 5, 1}, 
         {2, 3, 7, 6},
         {0, 2, 6, 4},
-
         {1, 5, 7, 3}
     };
 
@@ -205,7 +208,7 @@ void CreaOttaedro(PoliedriMesh& mesh) {
 
 	//Celle0Ds
 	mesh.Cell0DsId.clear();
-	mesh.Cell0DsCoordinates.resize(3, vertici.size());
+	mesh.Cell0DsCoordinates.resize(3, vertici.size());  // allocazione di memoria per le coordinate
 
 	for (unsigned int i = 0; i < vertici.size(); ++i) {
 		mesh.Cell0DsId.push_back(i);
@@ -217,13 +220,13 @@ void CreaOttaedro(PoliedriMesh& mesh) {
 	
 	//Celle1Ds
     vector<pair<unsigned int, unsigned int>> lati = {
-		{0,2},{0,3},{0,4},{0,5},
-        {1,2},{1,3},{1,4},{1,5},
-        {2,4},{2,5},{3,5},{3,4}
+		{0,2}, {0,3}, {0,4}, {0,5},
+        {1,2}, {1,3}, {1,4}, {1,5},
+        {2,4}, {2,5}, {3,5}, {3,4}
     };
 	
 	mesh.Cell1DsId.clear();
-    mesh.Cell1DsExtrema.resize(2, lati.size());
+    mesh.Cell1DsExtrema.resize(2, lati.size());  // allocazione di memoria per gli estremi
 	
 	for (unsigned int i = 0; i < lati.size(); ++i) {
 		mesh.Cell1DsId.push_back(i);
@@ -238,6 +241,10 @@ void CreaOttaedro(PoliedriMesh& mesh) {
     mesh.Cell2DsVertices.clear();
     mesh.Cell2DsEdges.clear();
 	
+	mesh.Cell2DsId.resize(8);  // alloca uno spazio di dimensione 8 per gli Id
+    mesh.Cell2DsVertices.resize(8);  // alloca uno spazio di dimensione 8 per i vertici
+    mesh.Cell2DsEdges.resize(8);  // alloca uno spazio di dimensione 8 per i lati
+
 	mesh.Cell2DsId = {0, 1, 2, 3, 4, 5, 6, 7};
 	
 	
@@ -267,7 +274,7 @@ void CreaOttaedro(PoliedriMesh& mesh) {
 	
 	
 	//Celle3Ds
-		mesh.Cell3DsId.clear();
+	mesh.Cell3DsId.clear();
 	mesh.Cell3DsNumVertices.clear();
     mesh.Cell3DsVertices.clear();
 	mesh.Cell3DsNumEdges.clear();
@@ -320,7 +327,7 @@ void CreaDodecaedro(PoliedriMesh& mesh) {
 
 	//Celle0Ds
 	mesh.Cell0DsId.clear();
-	mesh.Cell0DsCoordinates.resize(3, vertici.size());
+	mesh.Cell0DsCoordinates.resize(3, vertici.size());  // allocazione di memoria per le coordinate
 
 	for (unsigned int i = 0; i < vertici.size(); ++i) {
 		mesh.Cell0DsId.push_back(i);
@@ -332,16 +339,16 @@ void CreaDodecaedro(PoliedriMesh& mesh) {
 	
 	//Celle1Ds
 	vector<pair<unsigned int, unsigned int>> lati = {
-		{0, 1}, {0, 4}, {0, 7}, {1, 2}, {1, 9},
-		{2, 3}, {2, 11}, {3, 4}, {3, 13}, {4, 5},
-		{5, 6}, {5, 14}, {6, 7}, {6, 16}, {7, 8},
-		{8, 9}, {8, 17}, {9, 10}, {10, 11}, {10, 18},
-		{11, 12}, {12, 13}, {12, 19}, {13, 14}, {14, 15}, 
-		{15, 16}, {16, 17}, {17, 18}, {18, 19}, {19, 15}
+		{0,1}, {0,4}, {0,7}, {1,2}, {1,9},
+		{2,3}, {2,11}, {3,4}, {3,13}, {4,5},
+		{5,6}, {5,14}, {6,7}, {6,16}, {7,8},
+		{8,9}, {8,17}, {9,10}, {10,11}, {10,18},
+		{11,12}, {12,13}, {12,19}, {13,14}, {14,15}, 
+		{15,16}, {16,17}, {17,18}, {18,19}, {19,15}
 	};
 	
 	mesh.Cell1DsId.clear();
-    mesh.Cell1DsExtrema.resize(2, lati.size());
+    mesh.Cell1DsExtrema.resize(2, lati.size());  // allocazione di memoria per gli estremi
 	
 	for (unsigned int i = 0; i < lati.size(); ++i) {
 		mesh.Cell1DsId.push_back(i);
@@ -356,6 +363,9 @@ void CreaDodecaedro(PoliedriMesh& mesh) {
     mesh.Cell2DsVertices.clear();
     mesh.Cell2DsEdges.clear();
 	
+	mesh.Cell2DsId.resize(12);  // alloca uno spazio di dimensione 12 per gli Id
+    mesh.Cell2DsVertices.resize(12);  // alloca uno spazio di dimensione 12 per i vertici
+    mesh.Cell2DsEdges.resize(12);  // alloca uno spazio di dimensione 12 per i lati
 	
 	mesh.Cell2DsId = {0,1,2,3,4,5,6,7,8,9,10,11};
 
@@ -395,7 +405,7 @@ void CreaDodecaedro(PoliedriMesh& mesh) {
 	
 	
 	//Celle3Ds
-		mesh.Cell3DsId.clear();
+	mesh.Cell3DsId.clear();
 	mesh.Cell3DsNumVertices.clear();
     mesh.Cell3DsVertices.clear();
 	mesh.Cell3DsNumEdges.clear();
@@ -439,7 +449,7 @@ void CreaIcosaedro(PoliedriMesh& mesh) {
 
 	//Celle0Ds
 	mesh.Cell0DsId.clear();
-	mesh.Cell0DsCoordinates.resize(3, vertici.size());
+	mesh.Cell0DsCoordinates.resize(3, vertici.size());  // allocazione di memoria per le coordinate
 
 	for (unsigned int i = 0; i < vertici.size(); ++i) {
 		mesh.Cell0DsId.push_back(i);
@@ -451,17 +461,17 @@ void CreaIcosaedro(PoliedriMesh& mesh) {
 	
 	//Celle1Ds
 	vector<pair<unsigned int, unsigned int>> lati = {
-		{0, 1}, {0, 2}, {0, 3}, {0, 4}, {0, 5},
-		{1, 2}, {2, 3}, {3, 4}, {4, 5}, {5, 1},
-		{1, 6}, {1, 7}, {2, 7}, {2, 8}, {3, 8}, 
-		{3, 9}, {4, 9}, {4, 10},{5, 10}, {5, 6}, 
-		{6, 10}, {6, 7}, {7, 8}, {8, 9}, {9,10},
-		{11, 6}, {11, 7}, {11, 8}, {11, 9}, {11, 10}	
+		{0,1}, {0,2}, {0,3}, {0,4}, {0,5},
+		{1,2}, {2,3}, {3,4}, {4,5}, {5,1},
+		{1,6}, {1,7}, {2,7}, {2,8}, {3,8}, 
+		{3,9}, {4,9}, {4,10},{5,10}, {5,6}, 
+		{6,10}, {6,7}, {7,8}, {8,9}, {9,10},
+		{11,6}, {11,7}, {11,8}, {11,9}, {11,10}	
 	};
 	
 	
 	mesh.Cell1DsId.clear();
-    mesh.Cell1DsExtrema.resize(2, lati.size());
+    mesh.Cell1DsExtrema.resize(2, lati.size());  // allocazione di memoria per gli estemi
 	
 	for (unsigned int i = 0; i < lati.size(); ++i) {
 		mesh.Cell1DsId.push_back(i);
@@ -476,6 +486,10 @@ void CreaIcosaedro(PoliedriMesh& mesh) {
     mesh.Cell2DsVertices.clear();
     mesh.Cell2DsEdges.clear();
 	
+	mesh.Cell2DsId.resize(20);  // alloca uno spazio di dimensione 20 per gli Id
+    mesh.Cell2DsVertices.resize(20);  // alloca uno spazio di dimensione 20 per i vertici
+    mesh.Cell2DsEdges.resize(20);  // alloca uno spazio di dimensione 20 per i lati
+
 	mesh.Cell2DsId = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19};
 	
 	mesh.Cell2DsVertices = {
@@ -618,7 +632,7 @@ bool ScritturaCelle(const PoliedriMesh& mesh, const string& nomeBase) {
 		return false;
 	}
 	
-	file3 << "# ID NumVertices Vertices NumEdges Edges NumFaces Faces" << endl
+	file3 << "# ID NumVertices Vertices NumEdges Edges NumFaces Faces" << endl;
 	for(size_t i = 0; i < mesh.NumCell3Ds; ++i) {
 		file3 << mesh.Cell3DsId[i] << " "
 			  << mesh.Cell3DsNumVertices[i] << " "
@@ -658,24 +672,25 @@ bool ImportMesh(PoliedriMesh& mesh, unsigned int p, unsigned int q)
 }
 
 
-unsigned int TrovaSpigolo(map<pair<unsigned int, unsigned int>, unsigned int> &mappaSpigoli, PoliedriMesh &mesh, unsigned int start, unsigned int end)
+unsigned int TrovaSpigolo(map<pair<unsigned int, unsigned int>, unsigned int>& mappaSpigoli, PoliedriMesh& mesh, unsigned int start, unsigned int end)
 {
     if (start > end)
-		swap(start, end);
-    auto chiave = make_pair(start, end);
+		swap(start, end);  // inverte le posizioni
+    auto chiave = make_pair(start, end);  // crea una pair() il cui tipo è uguale a quello degli argomenti
 
-    auto iter = mappaSpigoli.find(chiave);
+    auto iter = mappaSpigoli.find(chiave);  // in mappaSpigoli cerca la chiave
     if (iter != mappaSpigoli.end())
-		return iter->second;
+		return iter->second;  // restituisce il valore associato alla chiave a cui punta l'iteratore nella mappa mappaSpigoli
 
     unsigned int nuovoIndice = mesh.Cell1DsExtrema.cols();
-    mesh.Cell1DsExtrema.conservativeResize(2, nuovoIndice + 1);
+    mesh.Cell1DsExtrema.conservativeResize(2, nuovoIndice + 1);  // ridimensiona il numero di colonne in modo conservativo, cioè mantenendo i dati già presenti
     mesh.Cell1DsExtrema(0, nuovoIndice) = start;
     mesh.Cell1DsExtrema(1, nuovoIndice) = end;
 
     mesh.Cell1DsId.push_back(nuovoIndice);
     mappaSpigoli[chiave] = nuovoIndice;
-    return nuovoIndice;
+    
+	return nuovoIndice;
 }
 
 }

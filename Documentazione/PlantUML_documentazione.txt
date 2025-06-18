@@ -1,0 +1,80 @@
+@startuml
+title Solidi Geodetici e loro duali
+
+package PoliedriLibrary <<Folder>>
+{
+
+class Utils
+    {
+    + ImportMesh(PoliedriMesh& mesh, unsigned int p, unsigned int q) : bool
+    + ScritturaCelle(const PoliedriMesh& mesh, const string& nomeBase) : bool
+    + CostruisciDualMesh(const PoliedriMesh& meshOriginale, PoliedriMesh& meshDuale) : void
+    + Export(const PoliedriMesh& mesh, const string& nomeBase) : void
+    + Mappa_LatoFaccia(const PoliedriMesh& meshTriangolata) : map<pair<unsigned int, unsigned int>, vector<unsigned int>>
+    + ProiettaSuSfera(PoliedriMesh& mesh) : void
+    }
+    
+class CostruzioneSolidi
+    {
+    + CreaTetraedro(PoliedriMesh& mesh) : void
+    + CreaCubo(PoliedriMesh& mesh) : void
+    + CreaOttaedro(PoliedriMesh& mesh) : void
+    + CreaDodecaedro(PoliedriMesh& mesh) : void
+    + CreaIcosaedro(PoliedriMesh& mesh) : void
+    }
+    
+class TriangolazioneGeodetica
+    {
+    + TrovaSpigolo(map<pair<unsigned int, unsigned int>, unsigned int>& mappaSpigoli, PoliedriMesh& mesh, unsigned int start, unsigned int end) : unsigned int
+    + TriangolaFacceClasseI(const PoliedriMesh& meshIniziale, PoliedriMesh& meshRisultato, unsigned int livelloSuddivisione) : void
+    + TriangolaFacceClasseII(const PoliedriMesh& meshIniziale, PoliedriMesh& meshRisultato, unsigned int b) : void
+    + CostruisciDualMesh(const PoliedriMesh& meshTriangolata, PoliedriMesh& meshDuale) : void
+    }
+    
+struct CompareVector3d
+    {
+    + operator()(const Vector3d& a, const Vector3d& b) const : bool
+    }
+
+struct PoliedriMesh
+    {
+    ' Vertici
+    + NumCell0Ds : unsigned int
+    + Cell0DsId : std::vector<unsigned int>
+    + Cell0DsCoordinates : Eigen::MatrixXd
+    
+    ' Lati
+    + NumCell1Ds : unsigned int
+    + Cell1DsId : std::vector<unsigned int>
+    + Cell1DsExtrema : Eigen::MatrixXi
+    
+    ' Facce
+    + NumCell2Ds : unsigned int
+    + Cell2DsId : std::vector<unsigned int>
+    + Cell2DsNumVertices : std::vector<unsigned int>
+    + Cell2DsVertices : std::vector<std::vector<unsigned int>>
+    + Cell2DsNumEdges : std::vector<unsigned int>
+    + Cell2DsEdges : std::vector<std::vector<unsigned int>>
+    
+    ' Poliedri
+    + NumCell3Ds : unsigned int
+    + Cell3DsId: std::vector<unsigned int>
+    + Cell3DsNumVertices : std::vector<unsigned int>
+    + Cell3DsVertices : std::vector<std::vector<unsigned int>>
+    + Cell3DsNumEdges : std::vector<unsigned int>
+    + Cell3DsEdges : std::vector<std::vector<unsigned int>>
+    + Cell3DsNumFaces : std::vector<unsigned int>
+    + Cell3DsFaces : std::vector<std::vector<unsigned int>>
+    
+    ' Spigoli adiacenti alle facce
+    + SpigoliAdiacentiFacce : vector<pair<int, int>>
+    }
+    
+    Utils --> PoliedriMesh: usa
+    CostruzioneSolidi --> PoliedriMesh : costruisce
+    TriangolazioneGeodetica --> PoliedriMesh : triangola
+    TriangolazioneGeodetica --> CompareVector3d : usa per ordinare
+
+}
+
+@enduml

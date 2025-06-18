@@ -22,13 +22,13 @@ struct CompareVector3d {
     }
 };
 
-void TriangolaFacceClasseI(const PoliedriMesh &meshIniziale, PoliedriMesh &meshRisultato, unsigned int livelloSuddivisione) {
+void TriangolaFacceClasseI(const PoliedriMesh& meshIniziale, PoliedriMesh& meshRisultato, unsigned int livelloSuddivisione) {
     if (livelloSuddivisione == 0) {
         cerr << "Errore: livelloSuddivisione = 0. Impossibile triangolare." << endl;
         return;
-
     }
 
+	// Inizializzazione della meshRisultato
     meshRisultato.Cell0DsCoordinates.resize(3, 0);
     meshRisultato.Cell0DsId.clear();
     meshRisultato.Cell1DsExtrema.resize(2, 0);
@@ -49,24 +49,24 @@ void TriangolaFacceClasseI(const PoliedriMesh &meshIniziale, PoliedriMesh &meshR
         Vector3d C = meshIniziale.Cell0DsCoordinates.col(faccia[2]);
 
         vector<vector<unsigned int>> idVertici(livelloSuddivisione + 1);
-
+		
+		// Generazione di una griglia di punti all'interno del triangolo ABC usando coordinate baricentriche, al fine di suddividere regolarmente ogni triangolo in sotto triangoli
         for (unsigned int i = 0; i <= livelloSuddivisione; ++i) {
-			// cosa si fa qui?
             for (unsigned int j = 0; j <= i; ++j) {
-                double a = 1.0 - static_cast<double>(i) / livelloSuddivisione;
-                double b = static_cast<double>(i - j) / livelloSuddivisione;
-                double c = static_cast<double>(j) / livelloSuddivisione;
+                double a = 1.0 - static_cast<double>(i) / livelloSuddivisione;  // conversione di tipi con static_cast
+                double b = static_cast<double>(i - j) / livelloSuddivisione;  // conversione di tipi con static_cast
+                double c = static_cast<double>(j) / livelloSuddivisione;  // conversione di tipi con static_cast
 
-                Vector3d punto = a * A + b * B + c * C;
+                Vector3d punto = a * A + b * B + c * C;  // combinazione lineare dei vertici A, B, C
 
                 unsigned int indice;
                 auto it = mappaVertici.find(punto);
                 if (it != mappaVertici.end()) {
-                    indice = it->second;
+                    indice = it->second;  // l'indice coincide con il valore della chiave "punto" a cui l'iteratore punta
                 }
 				else {
                     indice = meshRisultato.Cell0DsCoordinates.cols();
-                    meshRisultato.Cell0DsCoordinates.conservativeResize(3, indice + 1);
+                    meshRisultato.Cell0DsCoordinates.conservativeResize(3, indice + 1);  // ridimensionamento conservativo delle colonne
                     meshRisultato.Cell0DsCoordinates.col(indice) = punto;
                     meshRisultato.Cell0DsId.push_back(indice);
                     mappaVertici[punto] = indice;
@@ -76,7 +76,7 @@ void TriangolaFacceClasseI(const PoliedriMesh &meshIniziale, PoliedriMesh &meshR
             }
         }
 
-        // Triangola la griglia di vertici
+        // Triangolazione della griglia di vertici
         for (unsigned int i = 1; i <= livelloSuddivisione; ++i) {
             for (unsigned int j = 0; j < i; ++j) {
                 unsigned int k1 = idVertici[i][j];
@@ -84,7 +84,7 @@ void TriangolaFacceClasseI(const PoliedriMesh &meshIniziale, PoliedriMesh &meshR
                 unsigned int k3 = idVertici[i - 1][j];
                 unsigned int k4 = idVertici[i - 1][j + 1];
 
-                // Primo triangolo
+                // Primo triangolo; la funzione TrovaSpigolo() evita di trovare duplicati
                 unsigned int id1 = meshRisultato.Cell2DsVertices.size();
                 meshRisultato.Cell2DsVertices.push_back({k1, k2, k3});
                 meshRisultato.Cell2DsId.push_back(id1);
@@ -94,7 +94,7 @@ void TriangolaFacceClasseI(const PoliedriMesh &meshIniziale, PoliedriMesh &meshR
                     TrovaSpigolo(mappaSpigoli, meshRisultato, k3, k1)
                 });
 
-                // Secondo triangolo
+                // Secondo triangolo; la funzione TrovaSpigolo() evita di trovare duplicati
                 if (j + 1 < i) {
                     unsigned int id2 = meshRisultato.Cell2DsVertices.size();
                     meshRisultato.Cell2DsVertices.push_back({k2, k4, k3});
@@ -109,17 +109,17 @@ void TriangolaFacceClasseI(const PoliedriMesh &meshIniziale, PoliedriMesh &meshR
         }
     }
 
-    // Finalizza il conteggio
+    // Finalizzazione di meshRisultato
     meshRisultato.NumCell0Ds = meshRisultato.Cell0DsCoordinates.cols();
     meshRisultato.NumCell1Ds = meshRisultato.Cell1DsExtrema.cols();
     meshRisultato.NumCell2Ds = meshRisultato.Cell2DsVertices.size();
     meshRisultato.NumCell3Ds = 0;
     meshRisultato.Cell3DsId.clear();
-	meshRisultato.Cell3DsNumVertices.clear(); //aggiunta
+	meshRisultato.Cell3DsNumVertices.clear();
     meshRisultato.Cell3DsVertices.clear();
-	meshRisultato.Cell3DsNumEdges.clear(); //aggiunta
+	meshRisultato.Cell3DsNumEdges.clear();
     meshRisultato.Cell3DsEdges.clear();
-	meshRisultato.Cell3DsNumFaces.clear(); //aggiunta
+	meshRisultato.Cell3DsNumFaces.clear();
     meshRisultato.Cell3DsFaces.clear();
 }
 

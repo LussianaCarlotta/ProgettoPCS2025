@@ -21,7 +21,7 @@ struct CompareVector3d {
         return false;
     }
 };
-void TriangolaFacceClasseII(const PoliedriMesh &meshIniziale, PoliedriMesh &meshRisultato, unsigned int b) {
+void TriangolaFacceClasseII(const PoliedriMesh& meshIniziale, PoliedriMesh& meshRisultato, unsigned int b) {
     if (b == 0) {
         cerr << "Errore: livelloSuddivisione = 0. Impossibile triangolare." << endl;
         return;

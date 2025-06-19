@@ -13,11 +13,11 @@ namespace PoliedriLibrary {
 	// restituisce una mesh triangola triangolando le facce del poliedro della meshIniziale secondo un livello di suddivisione regolare
 	void TriangolaFacceClasseI(const PoliedriMesh& meshIniziale, PoliedriMesh& meshRisultato, unsigned int livelloSuddivisione);
 	
-	// Indice dei vertici
+	// Triangolazione delle facce non triangolari (casi cubo e dodecaedro)
 	// mesh: PoliedriMesh struct
-	// restituisce l'indice associato ai vertici della mesh per evitare duplicati
-	//unsigned int VerticeId(const Vector3d& punto, map<Vector3d, unsigned int, CompareVector3d>& mappaVertici, PoliedriMesh& meshRisultato);
-
+	// genera nuovi elementi delle celle 2Ds quando le facce dei solidi non sono triangolari e non è possibile eseguire direttamente la triangolazione
+	void TriangolaFacceNonTriangolari(PoliedriMesh& mesh);
+	
 	// Triangolazione delle facce dei solidi di classe 2
 	// mesh: PoliedriMesh struct
 	// restituisce una mesh triangolata triangolando le facce del poliedro della meshIniziale secondo il livello di suddivisione b

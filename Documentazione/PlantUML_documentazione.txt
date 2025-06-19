@@ -27,6 +27,7 @@ class CostruzioneSolidi
 class TriangolazioneGeodetica
     {
     + TrovaSpigolo(map<pair<unsigned int, unsigned int>, unsigned int>& mappaSpigoli, PoliedriMesh& mesh, unsigned int start, unsigned int end) : unsigned int
+    + TriangolaFacceNonTriangolari(PoliedriMesh& mesh) : void
     + TriangolaFacceClasseI(const PoliedriMesh& meshIniziale, PoliedriMesh& meshRisultato, unsigned int livelloSuddivisione) : void
     + VerticeId(const Vector3d& punto, map<Vector3d, unsigned int, CompareVector3d>& mappaVertici, PoliedriMesh& meshRisultato) : unsigned int
     + TriangolaFacceClasseII(const PoliedriMesh& meshIniziale, PoliedriMesh& meshRisultato, unsigned int b) : void
@@ -70,13 +71,23 @@ struct PoliedriMesh
     
     ' Spigoli adiacenti alle facce
     + SpigoliAdiacentiFacce : vector<pair<int, int>>
+    
+    .. TEST POLIEDRI ..
+    TestCell0Ds
+    TestCell1Ds
+    TestCell2Ds
+    TestCell3Ds
     }
     
-    Utils --> PoliedriMesh: usa
+    Utils --> PoliedriMesh : usa
     CostruzioneSolidi --> PoliedriMesh : costruisce
     TriangolazioneGeodetica --> PoliedriMesh : triangola
     TriangolazioneGeodetica --> CompareVector3d : usa per ordinare
-
 }
 
+package Gedim::UCDUtilities <<Frame>>
+{
+
+}
+Utils::Export --> Gedim::UCDUtilities
 @enduml

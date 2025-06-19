@@ -25,19 +25,6 @@ void Export(const PoliedriMesh& mesh, const std::string& nomeBase) {
                              mesh.Cell1DsExtrema,
                              {}, {}); // nessun vettore/scalare associato
 
-    // Esporta facce (Cell2Ds) come poligoni (se disponibile)
-    if (!mesh.Cell2DsVertices.empty()) {
-		std::vector<std::vector<unsigned int>> faces;
-		faces.reserve(mesh.Cell2DsVertices.size());
-		for (const auto& face : mesh.Cell2DsVertices) {
-			faces.push_back(face);
-		}
-
-        utilities.ExportPolygons(nomeBase + "_Cell2Ds.inp",
-                                 mesh.Cell0DsCoordinates,
-                                 faces,
-                                 {}, {});
-    }
 }
 
 }

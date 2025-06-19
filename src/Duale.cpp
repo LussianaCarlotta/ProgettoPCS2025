@@ -17,7 +17,7 @@ using namespace Eigen;
 namespace PoliedriLibrary {
 
 map<pair<unsigned int, unsigned int>, vector<unsigned int>> Mappa_LatoFaccia(const PoliedriMesh& mesh) {
-    map<pair<unsigned int, unsigned int>, vector<unsigned int>> lato_faccia;
+    map<pair<unsigned int, unsigned int>, vector<unsigned int>> lato_faccia;  // la chiave è una coppia ordinata di vertici che indica un lato
 
     for (unsigned int faceId = 0; faceId < mesh.Cell2DsVertices.size(); ++faceId) {
 		
@@ -70,7 +70,7 @@ void CostruisciDualMesh(const PoliedriMesh& meshTriangolata, PoliedriMesh& meshD
     auto lato_faccia = Mappa_LatoFaccia(meshTriangolata);
 
     // 4. Per ogni spigolo condiviso da due facce, aggiungi un lato tra i rispettivi baricentri
-    set<pair<unsigned int, unsigned int>> archiInseriti;
+    set<pair<unsigned int, unsigned int>> archiInseriti;  // contiene un insieme ordinato di oggetti univoci di tipo key
     vector<pair<unsigned int, unsigned int>> spigoliDuali;
 
     for (const auto& [edge, facce] : lato_faccia) {
@@ -81,8 +81,8 @@ void CostruisciDualMesh(const PoliedriMesh& meshTriangolata, PoliedriMesh& meshD
             if (f1 > f2)
 				swap(f1, f2);  // ordinamento per evitare duplicati
 
-            if (!archiInseriti.count({f1, f2})) {
-                spigoliDuali.emplace_back(f1, f2);
+            if (!archiInseriti.count({f1, f2})) {  // count() restituisce il numero di elementi uguali a {f1, f2}
+                spigoliDuali.emplace_back(f1, f2);  // inserimento degli elementi alla fine del vettore (a differenza di push_back costruisce direttamente l'elemento senza crearne una copia	)
                 archiInseriti.insert({f1, f2});
             }
         }
@@ -105,13 +105,13 @@ void CostruisciDualMesh(const PoliedriMesh& meshTriangolata, PoliedriMesh& meshD
     meshDuale.Cell2DsEdges.clear();
     meshDuale.NumCell2Ds = 0;
 
-    // 7. Cella 3D (opzionale)
+    // 7. Cella 3D
     meshDuale.Cell3DsId = {0};
-	//meshDuale.Cell3DsNumVertices = {};
+	meshDuale.Cell3DsNumVertices = {static_cast<unsigned int>(meshDuale.Cell0DsId.size())};
     meshDuale.Cell3DsVertices = {meshDuale.Cell0DsId};
-	//meshDuale.Cell3DsNumEdges = {};
+	meshDuale.Cell3DsNumEdges = {static_cast<unsigned int>(meshDuale.Cell1DsId.size())};
     meshDuale.Cell3DsEdges = {meshDuale.Cell1DsId};
-	//meshDuale.Cell3DsNumFaces = {};
+	meshDuale.Cell3DsNumFaces = {0};
     meshDuale.Cell3DsFaces = {};  // vuoto
     meshDuale.NumCell3Ds = 1;
 }

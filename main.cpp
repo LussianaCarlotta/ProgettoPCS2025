@@ -78,6 +78,8 @@ int main() {
 		nomeBaseOutput = "Geodetico"; //se la triangolazione non ha richiesto il duale
 	}
 
+	AggiungiCelle3Ds(meshTriangolata);
+	
 	if (!ScritturaCelle(meshTriangolata, nomeBaseOutput)) {
 		cerr << "Errore nella scrittura dei file delle celle." << endl;
 		return 1;

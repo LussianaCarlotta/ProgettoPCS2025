@@ -21,17 +21,32 @@ struct CompareVector3d {
         return false;
     }
 };
+
+// Funzione di supporto per ottenere o creare un vertice
+unsigned int VerticeId(const Vector3d& punto, map<Vector3d, unsigned int, CompareVector3d>& mappaVertici, PoliedriMesh& meshRisultato) {
+	auto it = mappaVertici.find(punto);
+	if(it != mappaVertici.end())
+		return it->second;
+	
+	unsigned int indice = meshRisultato.Cell0DsCoordinates.cols();
+	meshRisultato.Cell0DsCoordinates.conservativeResize(3, indice + 1);
+	meshRisultato.Cell0DsCoordinates.col(indice) = punto;
+	meshRisultato.Cell0DsId.push_back(indice);
+	mappaVertici[punto] = indice;
+	return indice;
+}
+
 void TriangolaFacceClasseII(const PoliedriMesh& meshIniziale, PoliedriMesh& meshRisultato, unsigned int b) {
     if (b == 0) {
         cerr << "Errore: livelloSuddivisione = 0. Impossibile triangolare." << endl;
         return;
     }
 
-    // Passaggio 1: usa triangolazione di tipo I per ottenere i sottotriangoli
+    // Passaggio 1: usa triangolazione di tipo I per ottenere i sotto triangoli
     PoliedriMesh meshTipoI;
     TriangolaFacceClasseI(meshIniziale, meshTipoI, b);
 
-    // Inizializza mesh risultato
+    // Inizializzazione della meshRisultato
     meshRisultato.Cell0DsCoordinates.resize(3, 0);
     meshRisultato.Cell0DsId.clear();
     meshRisultato.Cell1DsExtrema.resize(2, 0);
@@ -43,22 +58,8 @@ void TriangolaFacceClasseII(const PoliedriMesh& meshIniziale, PoliedriMesh& mesh
     map<Vector3d, unsigned int, CompareVector3d> mappaVertici;
     map<pair<unsigned int, unsigned int>, unsigned int> mappaSpigoli;
 
-    // Funzione di supporto per ottenere o creare un vertice
-    auto getIndiceVertice = [&](const Vector3d &punto) -> unsigned int {
-        auto it = mappaVertici.find(punto);
-        if (it != mappaVertici.end())
-            return it->second;
-
-        unsigned int indice = meshRisultato.Cell0DsCoordinates.cols();
-        meshRisultato.Cell0DsCoordinates.conservativeResize(3, indice + 1);
-        meshRisultato.Cell0DsCoordinates.col(indice) = punto;
-        meshRisultato.Cell0DsId.push_back(indice);
-        mappaVertici[punto] = indice;
-        return indice;
-    };
-
     // Per ogni sottotriangolo della mesh di tipo I, applica suddivisione baricentrica
-    for (const auto &tri : meshTipoI.Cell2DsVertices) {
+    for (const auto& tri : meshTipoI.Cell2DsVertices) {
         Vector3d P0 = meshTipoI.Cell0DsCoordinates.col(tri[0]);
         Vector3d P1 = meshTipoI.Cell0DsCoordinates.col(tri[1]);
         Vector3d P2 = meshTipoI.Cell0DsCoordinates.col(tri[2]);
@@ -68,13 +69,13 @@ void TriangolaFacceClasseII(const PoliedriMesh& meshIniziale, PoliedriMesh& mesh
         Vector3d M12 = (P1 + P2) / 2.0;
         Vector3d M20 = (P2 + P0) / 2.0;
 
-        unsigned int iP0 = getIndiceVertice(P0);
-        unsigned int iP1 = getIndiceVertice(P1);
-        unsigned int iP2 = getIndiceVertice(P2);
-        unsigned int iG  = getIndiceVertice(G);
-        unsigned int iM01 = getIndiceVertice(M01);
-        unsigned int iM12 = getIndiceVertice(M12);
-        unsigned int iM20 = getIndiceVertice(M20);
+        unsigned int iP0 = VerticeId(P0, mappaVertici, meshRisultato);
+        unsigned int iP1 = VerticeId(P1, mappaVertici, meshRisultato);
+        unsigned int iP2 = VerticeId(P2, mappaVertici, meshRisultato);
+        unsigned int iG  = VerticeId(G, mappaVertici, meshRisultato);
+        unsigned int iM01 = VerticeId(M01, mappaVertici, meshRisultato);
+        unsigned int iM12 = VerticeId(M12, mappaVertici, meshRisultato);
+        unsigned int iM20 = VerticeId(M20, mappaVertici, meshRisultato);
 
         // Costruisci i 6 triangoli attorno al baricentro
         vector<pair<unsigned int, unsigned int>> lati = {
@@ -101,7 +102,7 @@ void TriangolaFacceClasseII(const PoliedriMesh& meshIniziale, PoliedriMesh& mesh
         }
     }
 
-    // Finalizzazione metadati mesh
+    // Finalizzazione di meshRisultato
     meshRisultato.NumCell0Ds = meshRisultato.Cell0DsCoordinates.cols();
     meshRisultato.NumCell1Ds = meshRisultato.Cell1DsExtrema.cols();
     meshRisultato.NumCell2Ds = meshRisultato.Cell2DsVertices.size();
@@ -115,4 +116,4 @@ void TriangolaFacceClasseII(const PoliedriMesh& meshIniziale, PoliedriMesh& mesh
     meshRisultato.Cell3DsFaces.clear();
 }
 
-} // namespace PoliedriLibrary
+}

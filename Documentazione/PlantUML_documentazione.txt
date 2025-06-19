@@ -7,6 +7,7 @@ package PoliedriLibrary <<Folder>>
 class Utils
     {
     + ImportMesh(PoliedriMesh& mesh, unsigned int p, unsigned int q) : bool
+    + AggiungiCelle3Ds(PoliedriMesh& mesh) : void
     + ScritturaCelle(const PoliedriMesh& mesh, const string& nomeBase) : bool
     + CostruisciDualMesh(const PoliedriMesh& meshOriginale, PoliedriMesh& meshDuale) : void
     + Export(const PoliedriMesh& mesh, const string& nomeBase) : void
@@ -27,6 +28,7 @@ class TriangolazioneGeodetica
     {
     + TrovaSpigolo(map<pair<unsigned int, unsigned int>, unsigned int>& mappaSpigoli, PoliedriMesh& mesh, unsigned int start, unsigned int end) : unsigned int
     + TriangolaFacceClasseI(const PoliedriMesh& meshIniziale, PoliedriMesh& meshRisultato, unsigned int livelloSuddivisione) : void
+    + VerticeId(const Vector3d& punto, map<Vector3d, unsigned int, CompareVector3d>& mappaVertici, PoliedriMesh& meshRisultato) : unsigned int
     + TriangolaFacceClasseII(const PoliedriMesh& meshIniziale, PoliedriMesh& meshRisultato, unsigned int b) : void
     + CostruisciDualMesh(const PoliedriMesh& meshTriangolata, PoliedriMesh& meshDuale) : void
     }

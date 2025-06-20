@@ -6,11 +6,11 @@
 
 #include <gtest/gtest.h>
 #include "PoliedriMesh.hpp"
+#include "Triangolazione.hpp"
 
 namespace PoliedriLibrary {
 	
 // Test sui vertici
-
 unsigned int NumCell0Ds = 0;
 std::vector<unsigned int> Cell0DsId;
 Eigen::MatrixXd Cell0DsCoordinates;
@@ -46,7 +46,6 @@ TEST(Cell0DsTest, Inizializzazione) {
 
 
 // Test sui lati
-
 unsigned int NumCell1Ds = 0;
 std::vector<unsigned int> Cell1DsId;
 Eigen::MatrixXi Cell1DsExtrema;
@@ -80,7 +79,6 @@ TEST(Cell1DsTest, Inizializzazione) {
 
 
 // Test sulle facce
-
 unsigned int NumCell2Ds = 0;
 std::vector<unsigned int> Cell2DsId;
 std::vector<unsigned int> Cell2DsNumVertices;
@@ -126,17 +124,16 @@ TEST(Cell2DsTest, Inizializzazione) {
         EXPECT_EQ(Cell2DsEdges[i].size(), Cell2DsNumEdges[i]);
 
         for (unsigned int j = 0; j < Cell2DsNumVertices[i]; ++j) {
-            EXPECT_GE(Cell2DsVertices[i][j], i);
+            EXPECT_GE(Cell2DsVertices[i][j], i);  // verifica che Cell2DsVertices[i][j] >= i
         }
         for (unsigned int j = 0; j < Cell2DsNumEdges[i]; ++j) {
-            EXPECT_GE(Cell2DsEdges[i][j], i);
+            EXPECT_GE(Cell2DsEdges[i][j], i);  // verifica che Cell2DsEdges[i][j] >= i
         }
     }
 }
 
 
 // Test sui poliedri
-
 unsigned int NumCell3Ds = 0;
 std::vector<unsigned int> Cell3DsId;
 std::vector<unsigned int> Cell3DsNumVertices;
@@ -190,7 +187,153 @@ TEST(Cell3DsTest, Inizializzazione) {
 
 // Test sulla costruzione dei solidi geodetici di classe 1
 
+//Test sulla corretta suddivisione in triangoli di una faccia con più di tre vertici
+TEST(TriangolazioneITest, TriangolaFacceNonTriangolari) {
+	PoliedriMesh mesh;
+	mesh.Cell2DsVertices = {{0, 1, 2, 3}};
+	mesh.Cell0DsCoordinates.resize(3, 4); // allocazione di memoria per 4 vertici
+	
+	TriangolaFacceNonTriangolari(mesh);
+	
+	EXPECT_EQ(mesh.NumCell2Ds, 2); // suddivisione di un quadrilatero in due triangoli
+	EXPECT_EQ(mesh.Cell2DsVertices.size(), 2);
+	for(const auto& faccia : mesh.Cell2DsVertices) {
+		EXPECT_EQ(faccia.size(), 3); // ogni faccia deve essere triangolare
+	}
+}
+
+// Test sulla triangolazione con livello di suddivisione uguale a 1
+TEST(TriangolazioneITest, TriangolaFacceClasseI_livello1) {
+	PoliedriMesh meshIniziale;
+	meshIniziale.Cell0DsCoordinates.resize(3, 3);
+	meshIniziale.Cell0DsCoordinates << 0, 1, 0,
+									   0, 0, 1,
+									   0, 0, 0;
+	meshIniziale.Cell2DsVertices = {{0, 1, 2}};
+	
+	PoliedriMesh meshRisultato;
+	TriangolaFacceClasseI(meshIniziale, meshRisultato, 1);
+	
+	EXPECT_EQ(meshRisultato.NumCell2Ds, 1); // il livello di suddivisione 1 inidica che c'è un solo triangolo
+	EXPECT_EQ(meshRisultato.Cell2DsVertices.size(), 1);
+	EXPECT_EQ(meshRisultato.Cell2DsVertices[0].size(), 3);
+}
+
+// Test sulla triangolazione con livello di suddivisione uguale o superiore a 2
+TEST(TriangolazioneITest, TriangolaFacceClasseI_livello2) {
+	PoliedriMesh meshIniziale;
+	meshIniziale.Cell0DsCoordinates.resize(3, 3);
+	meshIniziale.Cell0DsCoordinates << 0, 1, 0,
+									   0, 0, 1,
+									   0, 0, 0;
+	meshIniziale.Cell2DsVertices = {{0, 1, 2}};
+	
+	PoliedriMesh meshRisultato;
+	TriangolaFacceClasseI(meshIniziale, meshRisultato, 2);
+	
+	EXPECT_GT(meshRisultato.NumCell2Ds, 1);  // verifica che meshRisultato.NumCell2Ds > 1, cioè verifica che ci siano più triangoli
+	EXPECT_GT(meshRisultato.NumCell0Ds, 3);  // verifica che meshRisultato.NumCell0Ds > 3, cioè verifica che ci siano più di 3 vertici
+}
+
+// Test nel caso in cui il livello di suddivisione sia uguale a 0
+TEST(TriangolazioneITest, TriangolaFacceClasseI_livello0) {
+	PoliedriMesh meshIniziale;
+	meshIniziale.Cell0DsCoordinates.resize(3, 3);
+	meshIniziale.Cell2DsVertices = {{0, 1, 2}};
+	
+	PoliedriMesh meshRisultato;
+	TriangolaFacceClasseI(meshIniziale, meshRisultato, 0);
+	
+	EXPECT_EQ(meshRisultato.NumCell2Ds, 0); // nessuna triangolazione
+}
+
+
 // Test sulla costruzione dei solidi geodetici di classe 2
+
+// Test sulla triangolazione con livello di suddivisione b = 1
+TEST(TriangolazioneIITest, TriangolaFacceClasseII_livello1) {
+	PoliedriMesh meshIniziale;
+	meshIniziale.Cell0DsCoordinates.resize(3, 3);
+	meshIniziale.Cell0DsCoordinates << 0, 1, 0,
+									   0, 0, 1,
+									   0, 0, 0;
+	meshIniziale.Cell2DsVertices = {{0, 1, 2}};
+	
+	PoliedriMesh meshTipoI;
+	TriangolaFacceClasseI(meshIniziale, meshTipoI, 1);
+	
+	PoliedriMesh meshRisultato;
+	TriangolaFacceClasseII(meshTipoI, meshRisultato, 1);
+	
+	EXPECT_EQ(meshTipoI.NumCell2Ds, 1);
+	EXPECT_GT(meshRisultato.NumCell0Ds, 3);  // servono più di 3 vertici per ottenere i 6 triangoli (si rimanda al pdf del progetto per la visione grafica)
+	EXPECT_GE(meshRisultato.NumCell2Ds, 6);  // si generano almeno 6 triangoli eseguendo una suddivisione baricentrica
+}
+
+// Test sulla triangolazione con livello di suddivisione b = 2
+TEST(TriangolazioneIITest, TriangolaFacceClasseII_livello2) {
+	PoliedriMesh meshIniziale;
+	meshIniziale.Cell0DsCoordinates.resize(3, 3);
+	meshIniziale.Cell0DsCoordinates << 0, 1, 0,
+									   0, 0, 1,
+									   0, 0, 0;
+	meshIniziale.Cell2DsVertices = {{0, 1, 2}};
+	
+	PoliedriMesh meshTipoI;
+	TriangolaFacceClasseI(meshIniziale, meshTipoI, 2);
+	
+	PoliedriMesh meshRisultato;
+	TriangolaFacceClasseII(meshTipoI, meshRisultato, 2);
+	
+	EXPECT_EQ(meshTipoI.NumCell2Ds, 4);  // la triangolazione di classe 1 con b = 2 genera 4 triangoli
+	EXPECT_GT(meshRisultato.NumCell0Ds, 3);  // servono più di 3 vertici per ottenere i 6 triangoli (si rimanda al pdf del progetto per la visione grafica)
+	EXPECT_GE(meshRisultato.NumCell2Ds, 24);  // si generano almeno 6*4 triangoli eseguendo una suddivisione baricentrica
+}
+
+// Test sulla triangolazione con livello di suddivisione b = 0 (caso non valido)
+TEST(TriangolazioneIITest, TriangolaFacceClasseII_livello0) {
+	PoliedriMesh meshIniziale;
+	meshIniziale.Cell0DsCoordinates.resize(3, 3);
+	meshIniziale.Cell2DsVertices = {{0, 1, 2}};
+	
+	PoliedriMesh meshRisultato;
+	TriangolaFacceClasseII(meshIniziale, meshRisultato, 0);
+	
+	EXPECT_EQ(meshRisultato.NumCell2Ds, 0);  // nessuna triangolazione
+}
+
+// Test sulla coerenza dei triangoli generati
+TEST(TriangolazioneIITest, ValiditàTriangoli) {
+	PoliedriMesh meshIniziale;
+	meshIniziale.Cell0DsCoordinates.resize(3, 3);
+	meshIniziale.Cell2DsVertices = {{0, 1, 2}};
+	
+	PoliedriMesh meshRisultato;
+	TriangolaFacceClasseII(meshIniziale, meshRisultato, 1);
+	
+	for(const auto& faccia : meshRisultato.Cell2DsVertices) {
+		EXPECT_EQ(faccia.size(), 3);  // ogni faccia deve avere esattamente 3 vertici
+	}
+	for(const auto& lati : meshRisultato.Cell2DsEdges) {
+		EXPECT_EQ(lati.size(), 3);  // ogni faccia deve avere esattamente 3 lati
+	}
+}
+
+// Test sull'incremento dei vertici, dato che si introducono nuovi punti (baricentro e punti medi dei lati), con livello di suddivisione b = 2
+TEST(TriangolazioneIITest, AumentoVertici) {
+	PoliedriMesh meshIniziale;
+	meshIniziale.Cell0DsCoordinates.resize(3, 3);
+	meshIniziale.Cell2DsVertices = {{0, 1, 2}};
+	
+	PoliedriMesh meshTipoI;
+	TriangolaFacceClasseI(meshIniziale, meshTipoI, 2);
+	
+	PoliedriMesh meshRisultato;
+	TriangolaFacceClasseII(meshTipoI, meshRisultato, 2);
+	
+	EXPECT_GT(meshRisultato.NumCell0Ds, meshIniziale.Cell0DsCoordinates.cols());  // verifica che il numero di vertici della meshRisultato siano maggiore del numero di vertici della meshIniziale
+}
+
 
 // Test sulla costruzione dei duali
 

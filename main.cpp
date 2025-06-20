@@ -79,19 +79,6 @@ int main() {
 		nomeBaseOutput = "Geodetico"; //se la triangolazione non ha richiesto il duale
 	}
 
-	AggiungiCelle3Ds(meshTriangolata);
-
-	/*if (!VerificaCoerenzaMesh3D(meshTriangolata)) {
-    cerr << "Errore: la mesh contiene celle 3D incoerenti." << endl;
-    return 1;
-	}
-
-	std::cout << "[DEBUG] NumCell3Ds = " << meshTriangolata.NumCell3Ds << std::endl;
-	std::cout << "[DEBUG] Cell3DsId.size() = " << meshTriangolata.Cell3DsId.size() << std::endl;
-	std::cout << "[DEBUG] Cell3DsVertices.size() = " << meshTriangolata.Cell3DsVertices.size() << std::endl;
-	std::cout << "[DEBUG] Cell3DsEdges.size() = " << meshTriangolata.Cell3DsEdges.size() << std::endl;
-	std::cout << "[DEBUG] Cell3DsFaces.size() = " << meshTriangolata.Cell3DsFaces.size() << std::endl;*/
-
 	
 	if (!ScritturaCelle(meshTriangolata, nomeBaseOutput)) {
 		cerr << "Errore nella scrittura dei file delle celle." << endl;

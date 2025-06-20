@@ -7,12 +7,14 @@ package PoliedriLibrary <<Folder>>
 class Utils
     {
     + ImportMesh(PoliedriMesh& mesh, unsigned int p, unsigned int q) : bool
-    + AggiungiCelle3Ds(PoliedriMesh& mesh) : void
     + ScritturaCelle(const PoliedriMesh& mesh, const string& nomeBase) : bool
     + CostruisciDualMesh(const PoliedriMesh& meshOriginale, PoliedriMesh& meshDuale) : void
     + Export(const PoliedriMesh& mesh, const string& nomeBase) : void
     + Mappa_LatoFaccia(const PoliedriMesh& meshTriangolata) : map<pair<unsigned int, unsigned int>, vector<unsigned int>>
     + ProiettaSuSfera(PoliedriMesh& mesh) : void
+    
+    .. TEST PROIEZIONE ..
+    TestProiezioneSuSfera
     }
     
 class CostruzioneSolidi
@@ -32,6 +34,23 @@ class TriangolazioneGeodetica
     + VerticeId(const Vector3d& punto, map<Vector3d, unsigned int, CompareVector3d>& mappaVertici, PoliedriMesh& meshRisultato) : unsigned int
     + TriangolaFacceClasseII(const PoliedriMesh& meshIniziale, PoliedriMesh& meshRisultato, unsigned int b) : void
     + CostruisciDualMesh(const PoliedriMesh& meshTriangolata, PoliedriMesh& meshDuale) : void
+    
+    .. TEST TRIANGOLAZIONE I ..
+    TestTriangolaFacceNonTriangolari
+    TestTriangolaFacceClasseI_livello1
+    TestTriangolaFacceClasseI_livello2
+    TestTriangolaFacceClasseI_livello0
+    
+    .. TEST TRIANGOLAZIONE II ..
+    TestTriangolaFacceClasseII_livello1
+    TestTriangolaFacceClasseII_livello2
+    TestTriangolaFacceClasseII_livello0
+    TestValiditàTriangoli
+    TestAumentoVertici
+    
+    .. TEST DUALITÀ ..
+    TestDualeTriangolo
+    TestDualeTriangoliAdiacenti
     }
     
 struct CompareVector3d

@@ -106,14 +106,17 @@ void CostruisciDualMesh(const PoliedriMesh& meshTriangolata, PoliedriMesh& meshD
     meshDuale.NumCell2Ds = 0;
 
     // 7. Cella 3D
-    meshDuale.Cell3DsId = {0};
-	meshDuale.Cell3DsNumVertices = {static_cast<unsigned int>(meshDuale.Cell0DsId.size())};
-    meshDuale.Cell3DsVertices = {meshDuale.Cell0DsId};
-	meshDuale.Cell3DsNumEdges = {static_cast<unsigned int>(meshDuale.Cell1DsId.size())};
-    meshDuale.Cell3DsEdges = {meshDuale.Cell1DsId};
-	meshDuale.Cell3DsNumFaces = {0};
-    meshDuale.Cell3DsFaces = {};  // vuoto
-    meshDuale.NumCell3Ds = 1;
+    meshDuale.Cell3DsId.clear();
+	meshDuale.Cell3DsVertices.clear();
+	meshDuale.Cell3DsEdges.clear();
+	meshDuale.Cell3DsFaces.clear();
+	meshDuale.NumCell3Ds = 0;
+	
+	meshDuale.Cell3DsId.push_back(0);
+	meshDuale.Cell3DsVertices.push_back(meshDuale.Cell0DsId);
+	meshDuale.Cell3DsEdges.push_back(meshDuale.Cell1DsId);
+	meshDuale.Cell3DsFaces.push_back({});  // vuoto
+	meshDuale.NumCell3Ds = 1;
 }
 
 

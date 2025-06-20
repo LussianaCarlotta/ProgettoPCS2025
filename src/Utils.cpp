@@ -13,76 +13,6 @@ using namespace Eigen;
 
 namespace PoliedriLibrary {
 
-// forza la stampa dei valori in Celle3Ds.txt
-void AggiungiCelle3Ds(PoliedriMesh& mesh) {
-
-	if(mesh.NumCell3Ds > 0)
-		return;
-	
-	mesh.Cell3DsId.clear();
-	mesh.Cell3DsNumVertices.clear();
-    mesh.Cell3DsVertices.clear();
-	mesh.Cell3DsNumEdges.clear();
-    mesh.Cell3DsEdges.clear();
-	mesh.Cell3DsNumFaces.clear();
-    mesh.Cell3DsFaces.clear();
-	
-	mesh.Cell3DsId.push_back(0);
-	mesh.Cell3DsNumVertices.push_back(static_cast<unsigned int>(mesh.Cell0DsId.size()));
-	mesh.Cell3DsVertices.push_back(mesh.Cell0DsId);
-	mesh.Cell3DsNumEdges.push_back(static_cast<unsigned int>(mesh.Cell1DsId.size()));
-	mesh.Cell3DsEdges.push_back(mesh.Cell1DsId);
-	
-	if(!mesh.Cell2DsId.empty()) {
-		mesh.Cell3DsNumFaces.push_back(static_cast<unsigned int>(mesh.Cell2DsId.size()));
-		mesh.Cell3DsFaces.push_back(mesh.Cell2DsId);
-	}
-	else {
-		mesh.Cell3DsFaces.push_back({});
-		mesh.Cell3DsNumFaces.push_back(0);
-	}
-	
-	mesh.NumCell3Ds = 1;
-	
-	cout << "[DEBUG] Celle 3Ds aggiunte manualmente" << endl;
-}
-
-/*bool VerificaCoerenzaMesh3D(const PoliedriMesh& mesh) {
-    if (mesh.NumCell3Ds != mesh.Cell3DsId.size() ||
-        mesh.NumCell3Ds != mesh.Cell3DsVertices.size() ||
-        mesh.NumCell3Ds != mesh.Cell3DsEdges.size() ||
-        mesh.NumCell3Ds != mesh.Cell3DsFaces.size()) {
-        std::cerr << "[ERRORE] Dimensioni incoerenti tra NumCell3Ds e vettori Cell3Ds." << std::endl;
-        return false;
-    }
-
-    for (size_t i = 0; i < mesh.NumCell3Ds; ++i) {
-        for (auto v : mesh.Cell3DsVertices[i]) {
-            if (v >= mesh.Cell0DsId.size()) {
-                std::cerr << "[ERRORE] Vertice " << v << " fuori range nella cella 3D " << i << std::endl;
-                return false;
-            }
-        }
-        for (auto e : mesh.Cell3DsEdges[i]) {
-            if (e >= mesh.Cell1DsId.size()) {
-                std::cerr << "[ERRORE] Spigolo " << e << " fuori range nella cella 3D " << i << std::endl;
-                return false;
-            }
-        }
-        for (auto f : mesh.Cell3DsFaces[i]) {
-            if (f >= mesh.Cell2DsId.size()) {
-                std::cerr << "[ERRORE] Faccia " << f << " fuori range nella cella 3D " << i << std::endl;
-                return false;
-            }
-        }
-    }
-
-    std::cout << "[DEBUG] Verifica coerenza celle 3D completata con successo." << std::endl;
-    return true;
-}*/
-
-	
-
 /// TETRAEDRO
 void CreaTetraedro(PoliedriMesh& mesh)
 {
@@ -152,7 +82,25 @@ void CreaTetraedro(PoliedriMesh& mesh)
     
 
     //Celle3Ds
-	AggiungiCelle3Ds(mesh);
+	mesh.Cell3DsId.clear();
+    mesh.Cell3DsNumVertices.clear();
+    mesh.Cell3DsVertices.clear();
+    mesh.Cell3DsNumEdges.clear();
+    mesh.Cell3DsEdges.clear();
+    mesh.Cell3DsNumFaces.clear();
+    mesh.Cell3DsFaces.clear();
+
+    mesh.Cell3DsId.push_back(0);
+    mesh.Cell3DsVertices.push_back(mesh.Cell0DsId);
+    mesh.Cell3DsNumVertices.push_back(mesh.Cell0DsId.size());
+
+    mesh.Cell3DsEdges.push_back(mesh.Cell1DsId);
+    mesh.Cell3DsNumEdges.push_back(mesh.Cell1DsId.size());
+
+    mesh.Cell3DsFaces.push_back(mesh.Cell2DsId);
+    mesh.Cell3DsNumFaces.push_back(mesh.Cell2DsId.size());
+
+    mesh.NumCell3Ds = 1;
 }
 
 //********************************************************************************	
@@ -231,7 +179,25 @@ void CreaCubo(PoliedriMesh& mesh) {
 	mesh.NumCell2Ds = mesh.Cell2DsId.size();
 	
 	//Celle3Ds
-	AggiungiCelle3Ds(mesh);
+	mesh.Cell3DsId.clear();
+    mesh.Cell3DsNumVertices.clear();
+    mesh.Cell3DsVertices.clear();
+    mesh.Cell3DsNumEdges.clear();
+    mesh.Cell3DsEdges.clear();
+    mesh.Cell3DsNumFaces.clear();
+    mesh.Cell3DsFaces.clear();
+
+    mesh.Cell3DsId.push_back(0);
+    mesh.Cell3DsVertices.push_back(mesh.Cell0DsId);
+    mesh.Cell3DsNumVertices.push_back(mesh.Cell0DsId.size());
+
+    mesh.Cell3DsEdges.push_back(mesh.Cell1DsId);
+    mesh.Cell3DsNumEdges.push_back(mesh.Cell1DsId.size());
+
+    mesh.Cell3DsFaces.push_back(mesh.Cell2DsId);
+    mesh.Cell3DsNumFaces.push_back(mesh.Cell2DsId.size());
+
+    mesh.NumCell3Ds = 1;
 }
 
 //*****************************************************************************
@@ -315,7 +281,25 @@ void CreaOttaedro(PoliedriMesh& mesh) {
 	
 	
 	//Celle3Ds
-	AggiungiCelle3Ds(mesh);
+	mesh.Cell3DsId.clear();
+    mesh.Cell3DsNumVertices.clear();
+    mesh.Cell3DsVertices.clear();
+    mesh.Cell3DsNumEdges.clear();
+    mesh.Cell3DsEdges.clear();
+    mesh.Cell3DsNumFaces.clear();
+    mesh.Cell3DsFaces.clear();
+
+    mesh.Cell3DsId.push_back(0);
+    mesh.Cell3DsVertices.push_back(mesh.Cell0DsId);
+    mesh.Cell3DsNumVertices.push_back(mesh.Cell0DsId.size());
+
+    mesh.Cell3DsEdges.push_back(mesh.Cell1DsId);
+    mesh.Cell3DsNumEdges.push_back(mesh.Cell1DsId.size());
+
+    mesh.Cell3DsFaces.push_back(mesh.Cell2DsId);
+    mesh.Cell3DsNumFaces.push_back(mesh.Cell2DsId.size());
+
+    mesh.NumCell3Ds = 1;
 }
 
 //*****************************************************************************
@@ -432,7 +416,25 @@ void CreaDodecaedro(PoliedriMesh& mesh) {
 	
 	
 	//Celle3Ds
-    AggiungiCelle3Ds(mesh);
+    mesh.Cell3DsId.clear();
+    mesh.Cell3DsNumVertices.clear();
+    mesh.Cell3DsVertices.clear();
+    mesh.Cell3DsNumEdges.clear();
+    mesh.Cell3DsEdges.clear();
+    mesh.Cell3DsNumFaces.clear();
+    mesh.Cell3DsFaces.clear();
+
+    mesh.Cell3DsId.push_back(0);
+    mesh.Cell3DsVertices.push_back(mesh.Cell0DsId);
+    mesh.Cell3DsNumVertices.push_back(mesh.Cell0DsId.size());
+
+    mesh.Cell3DsEdges.push_back(mesh.Cell1DsId);
+    mesh.Cell3DsNumEdges.push_back(mesh.Cell1DsId.size());
+
+    mesh.Cell3DsFaces.push_back(mesh.Cell2DsId);
+    mesh.Cell3DsNumFaces.push_back(mesh.Cell2DsId.size());
+
+    mesh.NumCell3Ds = 1;
 }
 
 //**********************************************************************************
@@ -562,7 +564,25 @@ void CreaIcosaedro(PoliedriMesh& mesh) {
 	
 	
 	//Celle3Ds
-    AggiungiCelle3Ds(mesh);
+    mesh.Cell3DsId.clear();
+    mesh.Cell3DsNumVertices.clear();
+    mesh.Cell3DsVertices.clear();
+    mesh.Cell3DsNumEdges.clear();
+    mesh.Cell3DsEdges.clear();
+    mesh.Cell3DsNumFaces.clear();
+    mesh.Cell3DsFaces.clear();
+
+    mesh.Cell3DsId.push_back(0);
+    mesh.Cell3DsVertices.push_back(mesh.Cell0DsId);
+    mesh.Cell3DsNumVertices.push_back(mesh.Cell0DsId.size());
+
+    mesh.Cell3DsEdges.push_back(mesh.Cell1DsId);
+    mesh.Cell3DsNumEdges.push_back(mesh.Cell1DsId.size());
+
+    mesh.Cell3DsFaces.push_back(mesh.Cell2DsId);
+    mesh.Cell3DsNumFaces.push_back(mesh.Cell2DsId.size());
+
+    mesh.NumCell3Ds = 1;
 }
 
 bool ScritturaCelle(const PoliedriMesh& mesh, const string& nomeBase) {
@@ -629,21 +649,25 @@ bool ScritturaCelle(const PoliedriMesh& mesh, const string& nomeBase) {
 		return false;
 	}
 	
-	file3 << "# ID NumVertices NumEdges NumFaces Vertices Edges Faces" << endl;
+	file3 << "# ID NumVertices Vertices NumEdges Edges NumFaces Faces" << endl;
 	for(size_t i = 0; i < mesh.NumCell3Ds; ++i) {
 		file3 << mesh.Cell3DsId[i] << " "
-			  << mesh.Cell3DsVertices[i].size() << " "
-			  << mesh.Cell3DsEdges[i].size() << " "
-			  << mesh.Cell3DsFaces[i].size();
-			  
-		for(auto v : mesh.Cell3DsVertices[i])
+			  << mesh.Cell3DsVertices[i].size();
+	
+		for (auto v : mesh.Cell3DsVertices[i])
 			file3 << " " << v;
-		for(auto e : mesh.Cell3DsEdges[i])
+	
+		file3 << " " << mesh.Cell3DsEdges[i].size();
+	
+		for (auto e : mesh.Cell3DsEdges[i])
 			file3 << " " << e;
-		for(auto f : mesh.Cell3DsFaces[i])
+	
+		file3 << " " << mesh.Cell3DsFaces[i].size();
+	
+		for (auto f : mesh.Cell3DsFaces[i])
 			file3 << " " << f;
-		
-		file3 << endl;
+	
+		file3 << "\n";
 	}
 	file3.close();
 	

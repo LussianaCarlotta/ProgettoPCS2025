@@ -7,6 +7,7 @@
 #include <gtest/gtest.h>
 #include "PoliedriMesh.hpp"
 #include "Triangolazione.hpp"
+#include "Duale.hpp"
 
 namespace PoliedriLibrary {
 	
@@ -323,6 +324,9 @@ TEST(TriangolazioneIITest, ValiditàTriangoli) {
 TEST(TriangolazioneIITest, AumentoVertici) {
 	PoliedriMesh meshIniziale;
 	meshIniziale.Cell0DsCoordinates.resize(3, 3);
+	meshIniziale.Cell0DsCoordinates << 0, 1, 0,
+                                       0, 0, 1,
+                                       0, 0, 0;
 	meshIniziale.Cell2DsVertices = {{0, 1, 2}};
 	
 	PoliedriMesh meshTipoI;
@@ -336,8 +340,53 @@ TEST(TriangolazioneIITest, AumentoVertici) {
 
 
 // Test sulla costruzione dei duali
+TEST(DualeTest, DualeTriangolo) {
+	PoliedriMesh mesh;
+	mesh.Cell0DsCoordinates.resize(3, 3);
+	mesh.Cell0DsCoordinates << 0, 1, 0,
+							   0, 0, 1,
+							   0, 0, 0;
+	mesh.Cell2DsVertices = {{0, 1, 2}};
+	
+	PoliedriMesh meshDuale;
+	CostruisciDualMesh(mesh, meshDuale);
+	
+	EXPECT_EQ(meshDuale.NumCell0Ds, 1);  // deve esserci un baricentro
+	EXPECT_EQ(meshDuale.NumCell1Ds, 0);  // non devono esserci lati condivisi
+	EXPECT_EQ(meshDuale.NumCell2Ds, 0);  // non deve esserci nessuna faccia
+	EXPECT_EQ(meshDuale.NumCell3Ds, 1);  // deve esserci sono una cella 3D
+}
+
+TEST(DualeTest, DualeTriangoliAdiacenti) {
+	PoliedriMesh mesh;
+	mesh.Cell0DsId = {0, 1, 2, 3};
+	mesh.Cell0DsCoordinates.resize(3, 4);
+	mesh.Cell0DsCoordinates << 0, 1, 0, 1,
+							   0, 0, 1, 1,
+							   0, 0, 0, 0;
+	mesh.Cell2DsId = {0, 1};
+	mesh.Cell2DsVertices = {{0, 1, 2}, {1, 3, 2}};
+	
+	PoliedriMesh meshDuale;
+	CostruisciDualMesh(mesh, meshDuale);
+	
+	EXPECT_EQ(meshDuale.NumCell0Ds, 2);  // devono esserci 2 baricentri
+	EXPECT_EQ(meshDuale.NumCell1Ds, 1);  // deve esserci un lato condiviso
+}
+
 
 // Test sulla proiezione dei vertici sulla sfera
+TEST(DualeTest, ProiezioneSuSfera) {
+	PoliedriMesh mesh;
+	mesh.Cell0DsCoordinates.resize(3, 1);
+	mesh.Cell0DsCoordinates << 3, 0, 0;
+	
+	ProiettaSuSfera(mesh);
+	
+	double norma = mesh.Cell0DsCoordinates.col(0).norm();
+	
+	EXPECT_NEAR(norma, 1.0, 1e-9);  // verifica che il punto sia sulla sfera unitaria
+}
 
 // Test sul cammino minimo
 }

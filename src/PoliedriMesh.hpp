@@ -35,6 +35,9 @@ struct PoliedriMesh
 	vector<vector<unsigned int>> Cell3DsFaces = {}; //vettore di facce
 
 	vector<pair<int,int>> SpigoliAdiacentiFacce;
+	
+	vector<int> Cell0DsShortPath;
+	vector<int> Cell1DsShortPath;
 };
 
 }

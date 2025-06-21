@@ -58,6 +58,11 @@ struct CompareVector3d
     + operator()(const Vector3d& a, const Vector3d& b) const : bool
     }
 
+class CamminoMinimo
+    {
+    
+    }
+
 struct PoliedriMesh
     {
     ' Vertici
@@ -90,6 +95,10 @@ struct PoliedriMesh
     
     ' Spigoli adiacenti alle facce
     + SpigoliAdiacentiFacce : vector<pair<int, int>>
+    
+    ' Vertici e Lati del cammino minimo
+    + Cell0DsShortPath : vector<int>
+    + Cell1DsShortPath : vector<int>
     
     .. TEST POLIEDRI ..
     TestCell0Ds

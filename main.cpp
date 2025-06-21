@@ -1,6 +1,7 @@
 #include "PoliedriMesh.hpp"
 #include "Utils.hpp"
 #include "Triangolazione.hpp"
+#include "CamminoMinimo.hpp"
 #include "Duale.hpp"
 #include <set>
 #include <iostream>
@@ -42,7 +43,7 @@ int main() {
         return 1;
     }
 	
-	cout << "[DEBUG] Numero facce nella mesh iniziale: " << meshPlatonico.Cell2DsVertices.size() << endl;
+	// cout << "[DEBUG] Numero facce nella mesh iniziale: " << meshPlatonico.Cell2DsVertices.size() << endl;
 	
 	TriangolaFacceNonTriangolari(meshPlatonico);
 
@@ -69,8 +70,44 @@ int main() {
         meshTriangolata = meshDuale;
     }
 	ProiettaSuSfera(meshTriangolata);
-	
 
+
+	// Cammino minimo
+	unsigned int id1, id2;
+	cout << "Inserisci ID del primo vertice: ";
+	cin >> id1;
+	cout << "Inserisci ID del secondo vertice: ";
+	cin >> id2;
+
+    if (id1 >= meshTriangolata.NumCell0Ds || id2 >= meshTriangolata.NumCell0Ds) {
+        cerr << "Errore: ID vertici non validi." << endl;
+        return 1;
+    }
+
+    ShortestPath TrovaCammino(meshTriangolata);
+    double lunghezzaTotale = 0.0;
+    auto cammino = TrovaCammino.CalcolaShortPath(id1, id2, lunghezzaTotale);
+    TrovaCammino.MarcaCammino(cammino);
+
+	meshTriangolata.Cell0DsShortPath = TrovaCammino.getVerticiMarcati();
+	meshTriangolata.Cell1DsShortPath = TrovaCammino.getLatiMarcati();
+
+    // cout << "Cammino minimo trovato tra " << id1 << " e " << id2 << ":\n";
+    cout << "Numero di lati: " << cammino.size() - 1 << endl;
+    cout << "Lunghezza totale: " << lunghezzaTotale << endl;
+
+    // Applica i marcatori alla mesh
+    const auto& verticiMarcati = TrovaCammino.getVerticiMarcati();
+    const auto& latiMarcati = TrovaCammino.getLatiMarcati();
+
+    for(unsigned int i = 0; i < meshTriangolata.NumCell0Ds; ++i) {
+        meshTriangolata.Cell0DsId[i] = verticiMarcati[i];
+	}
+
+    for(unsigned int i = 0; i < meshTriangolata.NumCell1Ds; ++i) {
+        meshTriangolata.Cell1DsId[i] = latiMarcati[i];
+	}
+	
 	string nomeBaseOutput;
 	if (richiedeDualizzazioneFinale == true) {
 		nomeBaseOutput = "Goldberg"; // se è stato costruito il duale

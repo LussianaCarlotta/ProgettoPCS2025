@@ -6,7 +6,7 @@ namespace PoliedriLibrary {
 	// Ricerca degli spigoli per la costruzione della PoliedriMesh duale
 	// mesh: PoliedriMesh struct
 	// restituisce l'indice associato agli spigoli della mesh dopo aver eseguito la triangolazione per costruire la mesh duale
-	unsigned int TrovaSpigolo(map<pair<unsigned int, unsigned int>, unsigned int> &mappaSpigoli, PoliedriMesh &mesh, unsigned int start, unsigned int end);
+	unsigned int TrovaSpigolo(map<pair<unsigned int, unsigned int>, unsigned int>& mappaSpigoli, PoliedriMesh& mesh, unsigned int start, unsigned int end);
 	
 	// Triangolazione delle facce dei solidi di classe 1
 	// mesh: PoliedriMesh struct

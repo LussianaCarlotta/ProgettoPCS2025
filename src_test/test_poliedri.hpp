@@ -8,6 +8,7 @@
 #include "PoliedriMesh.hpp"
 #include "Triangolazione.hpp"
 #include "Duale.hpp"
+#include "CamminoMinimo.hpp"
 
 namespace PoliedriLibrary {
 	
@@ -388,5 +389,139 @@ TEST(DualeTest, ProiezioneSuSfera) {
 	EXPECT_NEAR(norma, 1.0, 1e-9);  // verifica che il punto sia sulla sfera unitaria
 }
 
+
 // Test sul cammino minimo
+
+// Test sulla costruzione del grafo
+TEST(CamminoMinimoTest, CostruzioneGrafo){
+	PoliedriMesh mesh;
+	mesh.NumCell0Ds = 4;
+	mesh.NumCell1Ds = 3;
+	mesh.Cell0DsCoordinates.resize(3, 4);
+	mesh.Cell0DsCoordinates << 0, 1, 1, 0,
+							   0, 0, 1, 1,
+							   0, 0, 0, 0;
+	mesh.Cell1DsExtrema.resize(2, 3);
+	mesh.Cell1DsExtrema << 0, 1, 2,
+						   1, 2, 3;
+						   
+	ShortestPath sp(mesh);
+	auto& lista = sp.lista_adiacenza;
+	
+	ASSERT_EQ(lista.size(), 4);
+	EXPECT_EQ(lista[0].size(), 1);  // l'elemento 0 è connesso con 1
+	EXPECT_EQ(lista[1].size(), 2);  // l'elemento 1 è connesso con 0 e 2
+	EXPECT_EQ(lista[2].size(), 2);  // l'elemento 2 è connesso con 1 e 3
+	EXPECT_EQ(lista[3].size(), 1);  // l'elemento 3 è connesso con 2
+}
+
+// Test sul calcolo della distanza
+TEST(CamminoMinimoTest, CalcolaDistanza) {
+	PoliedriMesh mesh;
+	mesh.Cell0DsCoordinates.resize(3, 4);
+	mesh.Cell0DsCoordinates << 0, 1, 1, 0,
+							   0, 0, 1, 1,
+							   0, 0, 0, 0;
+	mesh.Cell1DsExtrema.resize(2, 3);
+	mesh.Cell1DsExtrema << 0, 1, 2,
+						   1, 2, 3;
+						   
+	ShortestPath sp(mesh);
+	double dist = sp.CalcolaDistanza(0, 1);
+	
+	EXPECT_NEAR(dist, 1.0, 1e-6);
+}
+
+// Test su un grafo semplice
+TEST(CamminoMinimoTest, GrafoSemplice) {
+	PoliedriMesh mesh;
+	mesh.Cell0DsCoordinates.resize(3, 3);
+	mesh.Cell0DsCoordinates << 0, 1, 2,
+							   0, 0, 0,
+							   0, 0, 0;
+	mesh.Cell1DsExtrema.resize(2, 2);
+	mesh.Cell1DsExtrema << 0, 1,
+						   1, 2;
+	mesh.NumCell0Ds = 3;
+	mesh.NumCell1Ds = 2;
+	
+	ShortestPath sp(mesh);
+	double lunghezza = 0.0;
+	auto cammino = sp.CalcolaShortPath(0, 2, lunghezza);
+	
+	std::vector<unsigned int> expected = {0, 1, 2};
+	EXPECT_EQ(cammino, expected);
+	EXPECT_NEAR(lunghezza, 2.0, 1e-9);
+}
+
+// Test sul cammino minimo inesistente
+TEST(CamminoMinimoTest, CamminoMinimoInesistente) {
+	PoliedriMesh mesh;
+	mesh.Cell0DsCoordinates.resize(3, 2);
+	mesh.Cell0DsCoordinates << 0, 1,
+							   0, 1,
+							   0, 0;
+	mesh.Cell1DsExtrema.resize(2, 0);  // nessun lato
+	mesh.NumCell0Ds = 2;
+	mesh.NumCell1Ds = 0;
+	
+	ShortestPath sp(mesh);
+	double lunghezza = 0.0;
+	auto cammino = sp.CalcolaShortPath(0, 1, lunghezza);
+	
+	EXPECT_TRUE(cammino.empty());
+	EXPECT_EQ(lunghezza, std::numeric_limits<double>::infinity());
+}
+
+// Test su cammino con un solo nodo
+TEST(CamminoMinimoTest, StessoNodo) {
+	PoliedriMesh mesh;
+	mesh.Cell0DsCoordinates.resize(3, 4);
+	mesh.Cell0DsCoordinates << 0, 1, 1, 0,
+							   0, 0, 1, 1,
+							   0, 0, 0, 0;
+	mesh.Cell1DsExtrema.resize(2, 3);
+	mesh.Cell1DsExtrema << 0, 1, 2,
+						   1, 2, 3;
+	
+	mesh.NumCell0Ds = 4;
+	mesh.NumCell1Ds = 3;
+	
+	ShortestPath sp(mesh);
+	double lunghezza = -1;
+	auto cammino = sp.CalcolaShortPath(0, 0, lunghezza);
+	
+	std::vector<unsigned int> expected = {0};
+	EXPECT_EQ(cammino, expected);
+	EXPECT_EQ(lunghezza, 0.0);
+}
+
+// Test sulla marcatura corretta di vertici e lati
+TEST(CamminoMinimoTest, MarcaturaCorretta) {
+	PoliedriMesh mesh;
+	mesh.Cell0DsCoordinates.resize(3, 3);
+	mesh.Cell0DsCoordinates << 0, 1, 2,
+							   0, 0, 0,
+							   0, 0, 0;
+	mesh.Cell1DsExtrema.resize(2, 2);
+	mesh.Cell1DsExtrema << 0, 1,
+						   1, 2;
+	mesh.NumCell0Ds = 3;
+	mesh.NumCell1Ds = 2;
+	
+	ShortestPath sp(mesh);
+	double lunghezza = 0.0;
+	auto cammino = sp.CalcolaShortPath(0, 2, lunghezza);
+	sp.MarcaCammino(cammino);
+	
+	const auto& vertici = sp.getVerticiMarcati();
+	const auto& lati = sp.getLatiMarcati();
+	
+	EXPECT_EQ(vertici[0], 1);
+	EXPECT_EQ(vertici[1], 1);
+	EXPECT_EQ(vertici[2], 1);
+	EXPECT_EQ(lati[0], 1);
+	EXPECT_EQ(lati[1], 1);
+}
+
 }

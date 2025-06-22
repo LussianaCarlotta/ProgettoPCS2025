@@ -92,7 +92,6 @@ int main() {
 	meshTriangolata.Cell0DsShortPath = TrovaCammino.getVerticiMarcati();
 	meshTriangolata.Cell1DsShortPath = TrovaCammino.getLatiMarcati();
 
-    // cout << "Cammino minimo trovato tra " << id1 << " e " << id2 << ":\n";
     cout << "Numero di lati: " << cammino.size() - 1 << endl;
     cout << "Lunghezza totale: " << lunghezzaTotale << endl;
 

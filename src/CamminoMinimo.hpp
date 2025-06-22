@@ -20,7 +20,6 @@ public:
     const vector<int>& getVerticiMarcati() const;
     const vector<int>& getLatiMarcati() const;
 
-private:
     const PoliedriMesh& mesh;
     vector<vector<pair<unsigned int, double>>> lista_adiacenza;  // lista di archi
     vector<int> verticiMarcati;

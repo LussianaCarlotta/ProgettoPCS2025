@@ -10,7 +10,7 @@ class Utils
     + ScritturaCelle(const PoliedriMesh& mesh, const string& nomeBase) : bool
     + CostruisciDualMesh(const PoliedriMesh& meshOriginale, PoliedriMesh& meshDuale) : void
     + Export(const PoliedriMesh& mesh, const string& nomeBase) : void
-    + Mappa_LatoFaccia(const PoliedriMesh& meshTriangolata) : map<pair<unsigned int, unsigned int>, vector<unsigned int>>
+    + Mappa_LatoFaccia(const PoliedriMesh& meshTriangolata) : map<std::pair<unsigned int, unsigned int>, std::vector<unsigned int>>
     + ProiettaSuSfera(PoliedriMesh& mesh) : void
     
     .. TEST PROIEZIONE ..
@@ -26,12 +26,12 @@ class CostruzioneSolidi
     + CreaIcosaedro(PoliedriMesh& mesh) : void
     }
     
-class TriangolazioneGeodetica
+class Triangolazione
     {
-    + TrovaSpigolo(map<pair<unsigned int, unsigned int>, unsigned int>& mappaSpigoli, PoliedriMesh& mesh, unsigned int start, unsigned int end) : unsigned int
+    + TrovaSpigolo(map<std::pair<unsigned int, unsigned int>, unsigned int>& mappaSpigoli, PoliedriMesh& mesh, unsigned int start, unsigned int end) : unsigned int
     + TriangolaFacceNonTriangolari(PoliedriMesh& mesh) : void
     + TriangolaFacceClasseI(const PoliedriMesh& meshIniziale, PoliedriMesh& meshRisultato, unsigned int livelloSuddivisione) : void
-    + VerticeId(const Vector3d& punto, map<Vector3d, unsigned int, CompareVector3d>& mappaVertici, PoliedriMesh& meshRisultato) : unsigned int
+    + VerticeId(const Eigen::Vector3d& punto, map<Eigen::Vector3d, unsigned int, CompareVector3d>& mappaVertici, PoliedriMesh& meshRisultato) : unsigned int
     + TriangolaFacceClasseII(const PoliedriMesh& meshIniziale, PoliedriMesh& meshRisultato, unsigned int b) : void
     + CostruisciDualMesh(const PoliedriMesh& meshTriangolata, PoliedriMesh& meshDuale) : void
     
@@ -49,18 +49,34 @@ class TriangolazioneGeodetica
     TestAumentoVertici
     
     .. TEST DUALITÀ ..
-    TestDualeTriangolo
+    TestDualeTriangoloSingolo
     TestDualeTriangoliAdiacenti
     }
     
 struct CompareVector3d
     {
-    + operator()(const Vector3d& a, const Vector3d& b) const : bool
+    + operator()(const Eigen::Vector3d& a, const Eigen::Vector3d& b) const : bool
     }
 
-class CamminoMinimo
+class ShortestPath
     {
+    + CalcolaShortPath(unsigned int startId, unsigned int endId, double& totalLenght) : std::vector<unsigned int>
+    + MarcaCammino(const std::vector<unsigned int>& path) : void
+    + getVerticiMarcati() const : const std::vector<int>&
+    + getLatiMarcati() const : const std::vector<int>&
+    + lista_adiacenza : std::vector<std::vector<std::pair<unsigned int, double>>>
+    + verticiMarcati : std::vector<int>
+    + latiMarcati : std::vector<int>
+    + CostruisciGrafo() : void
+    + CalcolaDistanza(unsigned int id1, unsigned int id2) : double
     
+    .. TEST CAMMINO MINIMO ..
+    TestCostruzioneGrafo
+    TestCalcolaDistanza
+    TestGrafoSemplice
+    TestCamminoMinimoInesistente
+    TestStessoNodo
+    TestMarcaturaLatiVertici
     }
 
 struct PoliedriMesh
@@ -94,11 +110,11 @@ struct PoliedriMesh
     + Cell3DsFaces : std::vector<std::vector<unsigned int>>
     
     ' Spigoli adiacenti alle facce
-    + SpigoliAdiacentiFacce : vector<pair<int, int>>
+    + SpigoliAdiacentiFacce : std::vector<std::pair<int, int>>
     
-    ' Vertici e Lati del cammino minimo
-    + Cell0DsShortPath : vector<int>
-    + Cell1DsShortPath : vector<int>
+    ' Vertici e lati del cammino minimo
+    + Cell0DsShortPath : std::vector<int>
+    + Cell1DsShortPath : std::vector<int>
     
     .. TEST POLIEDRI ..
     TestCell0Ds
@@ -109,8 +125,9 @@ struct PoliedriMesh
     
     Utils --> PoliedriMesh : usa
     CostruzioneSolidi --> PoliedriMesh : costruisce
-    TriangolazioneGeodetica --> PoliedriMesh : triangola
-    TriangolazioneGeodetica --> CompareVector3d : usa per ordinare
+    Triangolazione --> PoliedriMesh : triangola
+    Triangolazione --> CompareVector3d : usa per ordinare
+    ShortestPath --> PoliedriMesh : usa
 }
 
 package Gedim::UCDUtilities <<Frame>>

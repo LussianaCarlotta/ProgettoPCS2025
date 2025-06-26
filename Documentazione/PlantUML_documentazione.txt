@@ -35,7 +35,6 @@ class Triangolazione
     + CostruisciDualMesh(const PoliedriMesh& meshTriangolata, PoliedriMesh& meshDuale) : void
     
     .. TEST TRIANGOLAZIONE I ..
-    TestTriangolaFacceNonTriangolari
     TestTriangolaFacceClasseI_livello1
     TestTriangolaFacceClasseI_livello2
     TestTriangolaFacceClasseI_livello0

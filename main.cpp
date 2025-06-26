@@ -43,9 +43,6 @@ int main() {
         return 1;
     }
 	
-	// cout << "[DEBUG] Numero facce nella mesh iniziale: " << meshPlatonico.Cell2DsVertices.size() << endl;
-	
-	TriangolaFacceNonTriangolari(meshPlatonico);
 
 	// Triangolazione 
     PoliedriMesh meshTriangolata;

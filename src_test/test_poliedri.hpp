@@ -189,21 +189,6 @@ TEST(Cell3DsTest, Inizializzazione) {
 
 // Test sulla costruzione dei solidi geodetici di classe 1
 
-//Test sulla corretta suddivisione in triangoli di una faccia con più di tre vertici
-TEST(TriangolazioneITest, TriangolaFacceNonTriangolari) {
-	PoliedriMesh mesh;
-	mesh.Cell2DsVertices = {{0, 1, 2, 3}};
-	mesh.Cell0DsCoordinates.resize(3, 4); // allocazione di memoria per 4 vertici
-	
-	TriangolaFacceNonTriangolari(mesh);
-	
-	EXPECT_EQ(mesh.NumCell2Ds, 2); // suddivisione di un quadrilatero in due triangoli
-	EXPECT_EQ(mesh.Cell2DsVertices.size(), 2);
-	for(const auto& faccia : mesh.Cell2DsVertices) {
-		EXPECT_EQ(faccia.size(), 3); // ogni faccia deve essere triangolare
-	}
-}
-
 // Test sulla triangolazione con livello di suddivisione uguale a 1
 TEST(TriangolazioneITest, TriangolaFacceClasseI_livello1) {
 	PoliedriMesh meshIniziale;

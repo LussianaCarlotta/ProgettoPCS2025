@@ -12,12 +12,7 @@ namespace PoliedriLibrary {
 	// mesh: PoliedriMesh struct
 	// restituisce una mesh triangola triangolando le facce del poliedro della meshIniziale secondo un livello di suddivisione regolare
 	void TriangolaFacceClasseI(const PoliedriMesh& meshIniziale, PoliedriMesh& meshRisultato, unsigned int livelloSuddivisione);
-	
-	// Triangolazione delle facce non triangolari (casi cubo e dodecaedro)
-	// mesh: PoliedriMesh struct
-	// genera nuovi elementi delle celle 2Ds quando le facce dei solidi non sono triangolari e non è possibile eseguire direttamente la triangolazione
-	void TriangolaFacceNonTriangolari(PoliedriMesh& mesh);
-	
+		
 	// Triangolazione delle facce dei solidi di classe 2
 	// mesh: PoliedriMesh struct
 	// restituisce una mesh triangolata triangolando le facce del poliedro della meshIniziale secondo il livello di suddivisione b

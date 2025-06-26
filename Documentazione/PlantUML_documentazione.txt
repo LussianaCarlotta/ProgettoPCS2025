@@ -29,7 +29,6 @@ class CostruzioneSolidi
 class Triangolazione
     {
     + TrovaSpigolo(map<std::pair<unsigned int, unsigned int>, unsigned int>& mappaSpigoli, PoliedriMesh& mesh, unsigned int start, unsigned int end) : unsigned int
-    + TriangolaFacceNonTriangolari(PoliedriMesh& mesh) : void
     + TriangolaFacceClasseI(const PoliedriMesh& meshIniziale, PoliedriMesh& meshRisultato, unsigned int livelloSuddivisione) : void
     + VerticeId(const Eigen::Vector3d& punto, map<Eigen::Vector3d, unsigned int, CompareVector3d>& mappaVertici, PoliedriMesh& meshRisultato) : unsigned int
     + TriangolaFacceClasseII(const PoliedriMesh& meshIniziale, PoliedriMesh& meshRisultato, unsigned int b) : void

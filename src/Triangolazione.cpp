@@ -22,44 +22,6 @@ struct CompareVector3d {
     }
 };
 
-void TriangolaFacceNonTriangolari(PoliedriMesh& mesh) {
-	vector<vector<unsigned int>> nuoveFacce;
-	vector<vector<unsigned int>> nuoviSpigoli;
-	vector<unsigned int> nuovoId;
-	
-	map<pair<unsigned int, unsigned int>, unsigned int> mappaSpigoli;
-	
-	for(size_t i = 0; i < mesh.Cell2DsVertices.size(); ++i) {
-		const auto& faccia = mesh.Cell2DsVertices[i];
-		
-		if(faccia.size() == 3) {
-			nuoveFacce.push_back(faccia);
-			nuovoId.push_back(nuoveFacce.size() - 1);
-			nuoviSpigoli.push_back({
-				TrovaSpigolo(mappaSpigoli, mesh, faccia[0], faccia[1]),
-				TrovaSpigolo(mappaSpigoli, mesh, faccia[1], faccia[2]),
-				TrovaSpigolo(mappaSpigoli, mesh, faccia[2], faccia[0])
-			});
-		}
-		else if(faccia.size() > 3) {
-			for(size_t j = 1; j < faccia.size() - 1; ++j) {
-				vector<unsigned int> triangolo = {faccia[0], faccia[j], faccia[j+1]};
-				nuoveFacce.push_back(triangolo);
-				nuovoId.push_back(nuoveFacce.size() - 1);
-				nuoviSpigoli.push_back({
-					TrovaSpigolo(mappaSpigoli, mesh, triangolo[0], triangolo[1]),
-					TrovaSpigolo(mappaSpigoli, mesh, triangolo[1], triangolo[2]),
-					TrovaSpigolo(mappaSpigoli, mesh, triangolo[2], triangolo[0])
-				});
-			}
-		}
-	}
-	
-	mesh.Cell2DsVertices = nuoveFacce;
-	mesh.Cell2DsEdges = nuoviSpigoli;
-	mesh.Cell2DsId = nuovoId;
-	mesh.NumCell2Ds = nuoveFacce.size();
-}
 
 void TriangolaFacceClasseI(const PoliedriMesh& meshIniziale, PoliedriMesh& meshRisultato, unsigned int livelloSuddivisione) {
     if (livelloSuddivisione == 0) {

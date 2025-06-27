@@ -31,8 +31,7 @@ void Export(const PoliedriMesh& mesh, const string& nomeBase) {
                            vertici_props); // ShortPath scalare
 
     // Export per i lati (Cell1Ds)
-    vector<double> Cell1Ds_ShortPath(mesh.Cell1DsShortPath.begin(), mesh.Cell1DsShortPath.end());  // inizializzato copiando tutti i valori di mesh.Cell1DsShortPath e serve per definire quali lati fanno parte del cammino minimo e quali noboolalpha
-
+    vector<double> Cell1Ds_ShortPath(mesh.Cell1DsShortPath.begin(), mesh.Cell1DsShortPath.end());  // inizializzato copiando tutti i valori di mesh.Cell1DsShortPath e serve per definire quali lati fanno parte del cammino minimo e quali no
     vector<Gedim::UCDProperty<double>> lati_props;
     lati_props.push_back({
 						  "ShortPath",  // Label
